@@ -35,12 +35,26 @@ const runMigrations = async () => {
     }
 }
 
-//После запуска миграций запускается сервер Node JS
-runMigrations().then(() => {
-    app.listen(port, () => {
+const runSeeds = async () => {
+    try {
+        await knexInstance.seed.run();
+    } catch (error) {
+        console.log(`Ошибка запуска сидов для миграций: ${error}`);
+    }
+}
+
+const Main = async () => {
+    await runMigrations();
+    await runSeeds();
+
+    await app.listen(port, () => {
         console.log(`Server is started on port: ${port}`);
     });
-})
+}
+
+Main();
+
+
 
 
 

@@ -11,7 +11,8 @@ export default {
       colors: {
         'main-bg': "var(--main-bg)",
         'additional-bg': "var(--additional-bg)",
-        'dark-blue': "var(--dark-blue)"
+        'button-bg': "var(--dark-blue)",
+        'border-blocks': "var(--border-blocks)"
       },
     },
   },

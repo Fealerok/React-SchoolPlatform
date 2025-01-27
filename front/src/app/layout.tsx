@@ -1,5 +1,6 @@
 import "./globals.css";
 import { AuthProvider } from "./_context/authContext";
+import { AsideProvider } from "./_context/asideContext";
 
 import {Roboto_Mono} from "next/font/google";
 
@@ -16,13 +17,16 @@ export default function RootLayout({
 
   return (
     <AuthProvider>
-      <html lang="en">
-          <body
-            className={`w-full h-screen flex justify-center items-center ${roboto_mono.className}`}
-          >
-            {children}
-          </body>
-      </html>
+      <AsideProvider>
+        <html lang="en">
+            <body
+              className={`w-full h-screen flex justify-center items-center ${roboto_mono.className}`}
+            >
+              {children}
+            </body>
+        </html>
+      </AsideProvider>
+      
     </AuthProvider>
         
   );

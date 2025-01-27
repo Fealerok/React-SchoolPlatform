@@ -8,7 +8,7 @@ export async function up(knex: Knex): Promise<void> {
     try {
         await knex.schema.createTable("UsersData", (table) => {
             table.increments('id').primary();
-            table.string('login').notNullable();
+            table.string('login').notNullable().unique();
             table.string('password').notNullable().unique();
         });
     } catch (error) {
@@ -30,7 +30,7 @@ export async function up(knex: Knex): Promise<void> {
         await knex.schema.createTable("Users", (table) => {
             table.increments('id').primary();
             table.string('full_name').notNullable();
-            table.integer('id_role').notNullable().references('id').inTable("Roles");
+            table.integer('id_role').notNullable();
             table.integer('class');
             table.integer('id_usersdata').notNullable().references('id').inTable('UsersData').onDelete("CASCADE");
         });

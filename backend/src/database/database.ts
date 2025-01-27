@@ -16,9 +16,12 @@ class Database{
     });
 
     constructor(){
-
+        
     }
 
+
+
+    //Функция аутентификации пользователя
     authUser = async (login: string, password: string): Promise<IAuth> => {
         //Открываем соединение
         const client = await this.db.connect();

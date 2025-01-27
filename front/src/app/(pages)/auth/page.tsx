@@ -6,6 +6,7 @@ import Link from 'next/link'
 import isValid from '../../_utils/validation/authValidation'
 import { AuthContext } from '../../_context/authContext'
 import { setTokens } from '@/app/_utils/localStorage/localStorage'
+import { useRouter } from 'next/navigation'
 
 interface IInputValue{
   type: string,
@@ -17,6 +18,7 @@ const AuthPage = () => {
   const [login, setLogin] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const {user, setUser} = useContext(AuthContext);
+  const router = useRouter();
 
   const loginButtonClick = async (): Promise<void> => {
     const isValidResult: (string | boolean)[] = isValid(login, password);
@@ -46,6 +48,7 @@ const AuthPage = () => {
 
         //Записываем токены в local storage
         setTokens(responseData.accessToken, responseData.refreshToken);
+        router.push("/main");
       }
 
       //Если неуспешная аутентификация, то выводим сообщение ошибки
@@ -60,17 +63,19 @@ const AuthPage = () => {
         inputPlaceholder='Логин' 
         setInputValue={setLogin} 
         type="Текст" 
+        isLabel={true}
       />
 
       <Input 
         inputPlaceholder='Пароль' 
         setInputValue={(setPassword)} 
         type="Пароль" 
+        isLabel={true}
       />
 
       <button 
         onClick={() => loginButtonClick()}
-        className='h-[50px] w-[260px] bg-dark-blue text-white text-2xl rounded-[15px] border-#6C72B9 border-2 ml-auto mr-auto'
+        className='h-[50px] w-[260px] bg-button-bg text-white text-2xl rounded-[15px] border-#6C72B9 border-2 ml-auto mr-auto'
       >Войти
       </button>
 
