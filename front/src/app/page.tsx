@@ -3,27 +3,37 @@ import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.share
 import { useRouter } from "next/navigation";
 import { useContext, useEffect } from "react";
 import { AuthContext } from "./_context/authContext";
+import checkAuth from "./_utils/checkAuth/checkAuth";
+import { getTokens, setTokens } from "./_utils/localStorage/localStorage";
 
 export default function Home() {
 
   const router: AppRouterInstance = useRouter();
 
-  const {user} = useContext(AuthContext);
+  const {user, setUser} = useContext(AuthContext);
   useEffect(() => {
 
-    console.log(user);
-    if (user){
-      alert(user.login);
-    }
+    const tokens = getTokens();
+    const checkResponse = checkAuth(tokens[0], tokens[1]);
+    checkResponse.then((resp) => {
+      
+      setTokens(resp.accessToken, resp.refreshToken);
 
-    else{
-      router.push('/auth');
-    }
+      if (resp.user){
+        setUser(resp.user);
+        setTokens(resp.accessToken, resp.refreshToken);
+        router.push("/main");
+      }
+
+      else{
+        router.push("/auth");
+      }
+    });
+
   }, []);
 
   return (
     <div className="">
-      
     </div>
   );
 }

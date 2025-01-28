@@ -1,6 +1,6 @@
 const getTokens = (): (string | null)[] => {
-    let accessToken: string | null = "";
-    let refreshToken: string | null = "";
+    let accessToken;
+    let refreshToken;
 
     accessToken = localStorage.getItem("accessToken");
     refreshToken = localStorage.getItem("refreshToken");
@@ -9,9 +9,10 @@ const getTokens = (): (string | null)[] => {
     return tokens;
 }
 
-const setTokens = (accessToken: string, refreshToken: string) => {
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", refreshToken);
+const setTokens = (accessToken: string | undefined, refreshToken: string | undefined) => {
+
+    localStorage.setItem("accessToken", accessToken == undefined ? "undefined" : accessToken );
+    localStorage.setItem("refreshToken", refreshToken == undefined ? "undefined" : refreshToken);
 }
 
 export {

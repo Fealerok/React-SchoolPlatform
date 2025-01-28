@@ -35,6 +35,7 @@ const runMigrations = async () => {
     }
 }
 
+//Метод запуска сидов (заполняющих изначальные данные)
 const runSeeds = async () => {
     try {
         await knexInstance.seed.run();
@@ -43,6 +44,7 @@ const runSeeds = async () => {
     }
 }
 
+//Запускаем миграции и сиды, затем сервер
 const Main = async () => {
     await runMigrations();
     await runSeeds();

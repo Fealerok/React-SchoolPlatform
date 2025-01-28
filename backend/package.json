@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.8",
     "@types/knex": "^0.15.2",
     "@types/pg": "^8.11.11",
     "bcryptjs": "^2.4.3",
