@@ -1,5 +1,6 @@
 const {Pool} = require("pg");
 const bcrypt = require("bcryptjs");
+const cryptoJS = require("crypto-js");
 import IAuth from "./interfaces";
 require("dotenv").config();
 
@@ -93,8 +94,62 @@ class Database{
                 message: "Ошибка аутентификации."
             };
         }
+    }
 
+    saveResfreshToken = async (idUser: number, refreshToken: string) => {
+        try {
+            const refreshInDatabase = (await this.db.query(`SELECT * FROM "RefreshTokens" WHERE id_user=$1`, [idUser])).rows;
 
+            if (refreshInDatabase.length > 0){
+                await this.db.query(`UPDATE "RefreshTokens" SET token=$1 WHERE id_user=$2`, [refreshToken, idUser]);
+            }
+            
+            else{
+                await this.db.query(`INSERT INTO "RefreshTokens" ("token", "id_user") VALUES ($1, $2)`, [refreshToken, idUser]);
+            }
+        } catch (error) {
+            console.log(`Ошибка сохранения Рефреш-токена: ${error}`);
+            
+        }
+    }
+
+    getClasses = async () => {
+        try {
+            const classes = (await this.db.query(`SELECT * FROM "Classes"`)).rows;
+
+            return classes;
+        } catch (error) {
+            console.log(`Ошибка получения классов в БД: ${error}`);
+            
+        }
+    }
+
+    getStudentsInSelectedClass = async (selectedClassid: number) => {
+        try {
+            const studentsInClass = await this.db.query(`SELECT
+                                                        Classes.name, Users.full_name, UsersData.login, UsersData.password`);
+        } catch (error) {
+            console.log(`Ошибка получения учеников выбранного класса в БД: ${error}`);
+            
+        }
+    }
+
+    addNewClass = async (nameNewClass: string) => {
+        try {
+            await this.db.query(`INSERT INTO "Classes"("name") VALUES ($1)`, [nameNewClass]);
+        } catch (error) {
+            console.log(`Ошибка добавления нового класса в БД: ${error}`);
+            
+        }
+    }
+
+    deleteClass = async (selectedClassId: number) => {
+        try {
+           await this.db.query(`DELETE FROM "Classes" WHERE id=$1`, [selectedClassId]);
+        } catch (error) {
+            console.log(`Ошибка удаления класса в БД: ${error}`);
+            
+        }
     }
 }
 

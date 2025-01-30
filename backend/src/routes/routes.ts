@@ -31,6 +31,8 @@ router.post("/auth", async (req: Request, res: Response): Promise<any>  => {
         const accessToken = JWTMethods.createAccessToken(dbResponse.user);
         const refreshToken = JWTMethods.createRefreshToken(dbResponse.user);
 
+        await db.saveResfreshToken(dbResponse.user.id, refreshToken);
+
         return res.status(200).json({
             user: dbResponse.user,
             accessToken,
@@ -68,5 +70,42 @@ router.post("/check-auth", checkTokens, (req: Request, res: Response): any => {
         });
     }
 } );
+
+router.get("/get-classes", async (req: Request, res: Response) => {
+    const classes = await db.getClasses();
+
+    res.status(200).json({classes: classes});
+});
+
+router.post("/get-students-in-class", async (req: Request, res: Response) => {
+    const selectedClassId = req.body.selectedClassId;
+
+    const students = await db.getStudentsInSelectedClass(selectedClassId);
+});
+
+router.post("/add-new-class", async (req: Request, res: Response) => {
+    try {
+        const nameNewClass = req.body.name;
+
+        await db.addNewClass(nameNewClass);
+
+        res.status(200).json({message: "Успешно"});
+    } catch (error) {
+        res.status(500).json({message: "Ошибка 500"});
+    }
+
+});
+
+router.delete("/delete-class", async (req: Request, res: Response) => {
+    try {
+        const idSelectedClass = req.body.selectedClassId;
+
+        await db.deleteClass(idSelectedClass);
+
+        res.status(200).json({message: "Успешно!"});
+    } catch (error) {
+        res.status(500).json({message: "Ошибка 500"});
+    }
+});
 
 module.exports = router;

@@ -1,0 +1,19 @@
+.buttons > button{
+    width: 40%;
+    border: 2px solid var(--border-blocks);
+    border-radius: 6px;
+    color: black;
+    background-color: var(--main-bg);
+    transition: 0.2s;
+}
+
+.buttons > button:hover{
+    color: white;
+    background-color: var(--dark-blue);
+}
+
+
+.classes{
+    display: flex;
+    max-height: calc(100% - 200px);
+}

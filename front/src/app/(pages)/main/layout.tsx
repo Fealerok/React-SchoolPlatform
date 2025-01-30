@@ -27,7 +27,7 @@ const MainLayout = ({
             </div>
             
         </header>
-        <div className='flex h-full w-full'>
+        <div className='flex h-[calc(100%-80px)] w-full relative'>
             <Aside type={asideType} />
             {children}
         </div>
