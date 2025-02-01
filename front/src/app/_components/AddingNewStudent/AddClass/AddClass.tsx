@@ -6,7 +6,7 @@ import Input from '@/app/_ui/Input/Input'
 interface IAddClass{
     isAddClass: boolean, 
     setIsAddClass: (data: boolean) => void,
-    setNewClass: (data: string | undefined) => void
+    setNewClass: (data: string | undefined) => void,
 }
 
 
@@ -50,7 +50,7 @@ const AddClass = ({isAddClass, setIsAddClass, setNewClass} : IAddClass) => {
             isLabel={false} type='Текст' />
         </div>
 
-        <div className="flex justify-between w-[70%] h-full small_buttons translate-y-[60%]">
+        <div className={` flex justify-between w-[70%] h-full small_buttons translate-y-[60%]`}>
             <button 
             className='pl-[15px] h-[30px] pr-[15px]' 
             onClick={() => addButtonHandle()}>Сохранить</button>

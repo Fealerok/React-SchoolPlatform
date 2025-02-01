@@ -2,16 +2,16 @@
 
 import React, {useContext} from 'react'
 import Schedule from '@/app/_components/Schedule/Schedule'
-import AddingNewStudent from '@/app/_components/AddingNewStudent/AddingNewStudent'
 
 import { AsideContext } from '@/app/_context/asideContext'
+import ClassesList from '@/app/_components/AddingNewStudent/ClassList'
 
 const page = () => {
 
   const {asideType, setAsideType} = useContext(AsideContext);
 
-  if (asideType == "main"){
-    return (<AddingNewStudent />)
+  if (asideType == "ClassList"){
+    return (<ClassesList />)
   }
   else{
     return (<></>)

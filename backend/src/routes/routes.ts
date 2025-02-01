@@ -77,34 +77,81 @@ router.get("/get-classes", async (req: Request, res: Response) => {
     res.status(200).json({classes: classes});
 });
 
-router.post("/get-students-in-class", async (req: Request, res: Response) => {
+router.post("/get-students-in-class", async (req: Request, res: Response): Promise<any> => {
     const selectedClassId = req.body.selectedClassId;
 
     const students = await db.getStudentsInSelectedClass(selectedClassId);
+
+    return res.status(200).json(students);
 });
 
-router.post("/add-new-class", async (req: Request, res: Response) => {
+router.post("/add-new-class", async (req: Request, res: Response): Promise<any> => {
     try {
         const nameNewClass = req.body.name;
 
         await db.addNewClass(nameNewClass);
 
-        res.status(200).json({message: "Успешно"});
+        return res.status(200).json({message: "Успешно"});
     } catch (error) {
-        res.status(500).json({message: "Ошибка 500"});
+        return res.status(500).json({message: "Ошибка 500"});
     }
 
 });
 
-router.delete("/delete-class", async (req: Request, res: Response) => {
+router.delete("/delete-class", async (req: Request, res: Response): Promise<any> => {
     try {
         const idSelectedClass = req.body.selectedClassId;
 
         await db.deleteClass(idSelectedClass);
 
-        res.status(200).json({message: "Успешно!"});
+        return res.status(200).json({message: "Успешно!"});
     } catch (error) {
-        res.status(500).json({message: "Ошибка 500"});
+        return res.status(500).json({message: "Ошибка 500"});
+    }
+});
+
+router.post("/add-student-in-class", async (req: Request, res: Response): Promise<any> => {
+    try {
+        let fullName = "";
+        if (req.body.patronymic) fullName = `${req.body.surname} ${req.body.name} ${req.body.patronymic}`;
+        else fullName = `${req.body.surname} ${req.body.name}`;
+
+        const {selectedClassId} = req.body;
+
+        await db.addStudentInClass(fullName, selectedClassId);
+
+        return res.status(200).json({message: "Успешно"});
+    } catch (error) {
+        return res.status(500).json({message: "Ошибка 500"});
+    }
+});
+
+router.delete("/delete-student", async (req: Request, res: Response): Promise<any> => {
+    try {
+        const {selectedStudentId} = req.body;
+        
+        await db.deleteStudent(selectedStudentId);
+
+        return res.status(200).json({message: "Успешно"});
+    } catch (error) {
+        return res.status(500).json({message: "Ошибка 500"});
+    }
+});
+
+router.post("/update-student", async (req: Request, res: Response): Promise<any> => {
+    try {
+        const {updatedStudent} = req.body;
+
+       const dbResponse = await db.updateStudent(updatedStudent);
+
+       console.log(dbResponse)
+       if (!dbResponse[0]){
+            return res.status(501).json({message: dbResponse[1]});
+       }
+
+        return res.status(200).json({message: "Успешно"});
+    } catch (error) {
+        return res.status(500).json({message: "Ошибка 500"});
     }
 });
 

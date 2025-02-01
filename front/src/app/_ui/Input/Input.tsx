@@ -6,14 +6,16 @@ interface IInput{
     inputPlaceholder: string,
     setInputValue: (inputValue: string) => void //Тип для функции, которая принимает inputValue и возвращает void,
     type: string,
-    isLabel: boolean
+    isLabel: boolean,
+    initialText?: string
 }
 
 const Input = ({
     inputPlaceholder,
     setInputValue,
     type,
-    isLabel
+    isLabel,
+    initialText
 } : IInput) => {
 
     const [isHasValue, setIsHasValue] = useState(false);
@@ -24,6 +26,7 @@ const Input = ({
         setInputValue(e.target.value);
     }
 
+
   return (
     <div className='relative h-[50px] w-full'>
         <input 
@@ -32,7 +35,10 @@ const Input = ({
         placeholder=''
         onChange={changeHandle}
         ref={inputRef}
+        defaultValue={initialText ? initialText : ""}
+        
         />
+        
 
         {isLabel ? <label className={`transition-all duration-200  absolute top-[50%] translate-y-[-50%] pointer-events-none text-2xl pl-[10px] ${isHasValue ? 'text-[22px]' : 'text-2xl'} ${isHasValue && `!-translate-y-[60px]`}`}>{inputPlaceholder}</label> : null }
 
