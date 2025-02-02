@@ -284,6 +284,15 @@ class Database{
             
         }
     }
+
+    updateClassName = async (updatedClassName: string, selectedClassId: number) => {
+        try {
+            await this.db.query(`UPDATE "Classes" SET name=$1 WHERE id=$2`, [updatedClassName, selectedClassId]);
+        } catch (error) {
+            console.log(`Ошибка обновления названия класса в БД: ${error}`);
+            
+        }
+    }
 }
 
 module.exports = new Database();

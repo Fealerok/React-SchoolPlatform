@@ -154,4 +154,16 @@ router.post("/update-student", async (req: Request, res: Response): Promise<any>
     }
 });
 
+router.post("/update-classname", async (req: Request, res: Response): Promise<any> => {
+    try {
+        const {updatedClassName} = req.body;
+        const {selectedClassId} = req.body;
+
+        await db.updateClassName(updatedClassName, selectedClassId);
+        return res.status(200).json({message: "Успешно"});
+    } catch (error) {
+        return res.status(500).json({message: "Ошибка 500"});
+    }
+});
+
 module.exports = router;

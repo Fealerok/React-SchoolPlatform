@@ -7,8 +7,7 @@ import { useRouter } from 'next/navigation';
 
 import { AsideContext } from '@/app/_context/asideContext';
 import { AuthContext } from '@/app/_context/authContext';
-import checkAuth from '@/app/_utils/checkAuth/checkAuth';
-import { getTokens } from '@/app/_utils/localStorage/localStorage';
+
 
 
 const MainLayout = ({
@@ -18,11 +17,10 @@ const MainLayout = ({
 }) => {
 
     const {asideType, setAsideType} = useContext(AsideContext);
-    const {user, setUser} = useContext(AuthContext);
-    const router = useRouter();
 
     useEffect(() => {
-        setAsideType("ClassList");
+        console.log(55);
+        setAsideType("Главная");
     }, [])
 
   return (

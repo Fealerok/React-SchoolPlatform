@@ -12,7 +12,7 @@ export default function Home() {
 
   const {user, setUser} = useContext(AuthContext);
   useEffect(() => {
-
+    console.log(123131);
     const tokens = getTokens();
     const checkResponse = checkAuth(tokens[0], tokens[1]);
     checkResponse.then((resp) => {

@@ -1,12 +1,13 @@
 "use client"
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Input from '@/app/_ui/Input/Input';
 import AddClass from './AddClass/AddClass';
 import "./ClassList.css";
-import { styleText } from 'util';
 import AddStudent from './AddStudent/AddStudent';
-import { json } from 'stream/consumers';
+import { getTokens } from '@/app/_utils/localStorage/localStorage';
+import EditClass from './EditClass/EditClass';
+import checkAuth from '@/app/_utils/checkAuth/checkAuth';
 
 interface IStudents{
     id: number,
@@ -24,9 +25,11 @@ const ClassesList = () => {
     const [activeStudentButtonId, setActiveStudentButtonId] = useState<number | null>();
     const [newClass, setNewClass] = useState<string | undefined>();
     const [newStudent, setNewStudent] = useState<string | undefined>();
+    const [updatedClassName, setClassName] = useState<string | undefined>();
 
     const [isAddClass, setIsAddClass] = useState(false);
     const [isAddStudent, setIsAddStudent] = useState(false);
+    const [isEditClass, setIsEditClass] = useState(false);
 
     const [selectedStudent, setSelectedStudent] = useState<IStudents>();
 
@@ -48,7 +51,6 @@ const ClassesList = () => {
        if (response.ok){
         const classesJson = await response.json();
         setClasses(classesJson.classes);
-        
        }
 
     }
@@ -117,6 +119,9 @@ const ClassesList = () => {
     }
 
     const setActiveClassButton = (buttonId: number) => {
+        const tokens = getTokens();
+        
+
         if (activeClassButtonId == buttonId){
             setActiveClassButtonId(null)
             getStudentsInClass(null);
@@ -179,6 +184,14 @@ const ClassesList = () => {
 
     }
 
+    const editClass = () => {
+        if (!activeClassButtonId) alert("Для редактирования названия необходимо выбрать класс");
+        
+        else{
+            setIsEditClass(true);
+        }
+    }
+
     useEffect(() => {
         if (selectedStudent) {
             // Разделяем full_name на фамилию, имя и отчество
@@ -198,7 +211,7 @@ const ClassesList = () => {
 
     useEffect(() => {
         getClasses();
-    }, [newClass, isAddClass]);
+    }, [newClass, isAddClass, updatedClassName]);
 
     useEffect(() => {
         getStudentsInClass(activeClassButtonId);
@@ -212,11 +225,12 @@ const ClassesList = () => {
   return (
     <div className='flex justify-between w-full h-full'>
 
+        <EditClass selectedClassId={activeClassButtonId} isEditClass={isEditClass} setIsEditClass={setIsEditClass} setClassName={setClassName}></EditClass>
         <AddClass setNewClass={setNewClass} isAddClass={isAddClass} setIsAddClass={setIsAddClass}></AddClass>
         <AddStudent selectedClassId={activeClassButtonId} setNewStudent={setNewStudent} isAddStudent={isAddStudent} setIsAddStudent={setIsAddStudent}></AddStudent>
 
         {/* Список класов */}
-        <div className={`${isAddClass || isAddStudent ? "pointer-events-none" : ""} flex h-full border-r-[3px] border-border-blocks justify-between items-center flex-col w-full`}> 
+        <div className={`${isAddClass || isEditClass || isAddStudent ? "pointer-events-none" : ""} flex h-full border-r-[3px] border-border-blocks justify-between items-center flex-col w-full`}> 
             <div className="mt-[45px] h-[75%] w-full flex flex-col small_buttons overflow-auto">
                 {classes.length !== 0 ? classes.map((classData) => {
                     return (
@@ -234,13 +248,14 @@ const ClassesList = () => {
                     <button onClick={deleteClass}>Удалить</button>
                 </div>
                 <div className="flex w-full justify-center buttons">
-                    <button className='flex-1'>Редактировать</button>
+                    <button className='flex-1' 
+                    onClick={editClass}>Редактировать</button>
                 </div>
             </div>
         </div> 
 
         {/* Список учеников */}
-        <div className={`${isAddStudent ? 'pointer-events-none' : ""} flex w-full h-full border-r-[3px] border-border-blocks flex-col small_buttons justify-between items-center`}>
+        <div className={`${isAddStudent || isEditClass ? 'pointer-events-none' : ""} flex w-full h-full border-r-[3px] border-border-blocks flex-col small_buttons justify-between items-center`}>
             <div className="mt-[45px] h-[75%] w-full flex flex-col small_buttons overflow-auto">
 
                 {students.length !== 0 ? 

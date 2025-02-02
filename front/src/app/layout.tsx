@@ -22,31 +22,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  const router = useRouter();
-  const {user, setUser} = useContext(AuthContext);
-  useEffect(() => {
-
-    const tokens = getTokens();
-    const checkResponse = checkAuth(tokens[0], tokens[1]);
-    checkResponse.then((resp) => {
-      
-      setTokens(resp.accessToken, resp.refreshToken);
-      
-      if (resp.user){
-        console.log(resp.user);
-        setUser(resp.user);
-        setTokens(resp.accessToken, resp.refreshToken);
-        router.push("/main");
-      }
-
-      else{
-        router.push("/auth");
-      }
-    });
-
-  }, []);
-
-
   return (
     <AuthProvider>
       <AsideProvider>
