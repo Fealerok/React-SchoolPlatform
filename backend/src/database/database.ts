@@ -160,7 +160,21 @@ class Database{
 
     deleteClass = async (selectedClassId: number) => {
         try {
+            const idStudentRole = ((await this.db.query(`SELECT id FROM "Roles" WHERE name=$1`, ['Ученик'])).rows[0]).id;
            await this.db.query(`DELETE FROM "Classes" WHERE id=$1`, [selectedClassId]);
+
+           const usersDataRows = (await this.db.query(`SELECT id_usersdata 
+                                                    FROM "Users" 
+                                                    WHERE id_class = $1 AND id_role=$2`, [selectedClassId, idStudentRole])).rows;
+
+            const usersDataId = usersDataRows.filter((ud: any) => ud.id_usersdata != null);
+
+            await this.db.query(`DELETE FROM "Users" WHERE id_class=$1 AND id_role=$2`, [selectedClassId, idStudentRole]);
+
+            for (let i = 0; i < usersDataId.length; i++){
+                await this.db.query(`DELETE FROM "UsersData" WHERE id=$1`, [usersDataId[i].id_usersdata]);
+            }
+           
         } catch (error) {
             console.log(`Ошибка удаления класса в БД: ${error}`);
             
@@ -171,6 +185,8 @@ class Database{
         try {
             const studentRoleid = (await this.db.query(`SELECT id FROM "Roles" WHERE name='Ученик'`)).rows[0].id;
             await this.db.query(`INSERT INTO "Users"("full_name", "id_role", "id_class") VALUES ($1, $2, $3)`, [fullName, studentRoleid, selectedClassId]);
+            console.log(`Фио: ${fullName}`);
+            
         } catch (error) {
             console.log(`Ошибка добавления ученика в БД: ${error}`);
             
@@ -242,10 +258,22 @@ class Database{
 
             const hashedPassword = await bcrypt.hash(updatedStudent.password, salt);
 
+            console.log(`Айди updated user: ${updatedStudent.id}`);
             const idUsersData = ((await this.db.query(`SELECT id_usersdata from "Users" WHERE id=$1`, [updatedStudent.id])).rows[0]).id_usersdata;
-
+           
             if (updatedStudent.login && updatedStudent.password){
-                await this.db.query(`update "UsersData" SET login=$1, password=$2 Where id=$3`, [updatedStudent.login, hashedPassword, idUsersData] );
+
+                if (idUsersData){
+                    const oldLogin = ((await this.db.query(`SELECT login FROM "UsersData" WHERE id=$1`, [idUsersData])).rows[0]).login;
+                    await this.db.query(`UPDATE "UsersData" SET login=$1, password=$2 WHERE login=$3`, [updatedStudent.login, hashedPassword, oldLogin]);
+                }
+
+                else{
+                    await this.db.query(`INSERT INTO "UsersData" ("login", "password") VALUES ($1, $2)`, [updatedStudent.login, hashedPassword]);
+                    const idUserData =((await this.db.query(`SELECT id FROM "UsersData" WHERE login=$1`, [updatedStudent.login])).rows[0]).id;
+                    await this.db.query(`UPDATE "Users" SET id_usersdata=$1 WHERE id=$2`, [idUserData, updatedStudent.id]);
+                }
+                
             }
             
 

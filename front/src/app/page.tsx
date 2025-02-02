@@ -18,8 +18,9 @@ export default function Home() {
     checkResponse.then((resp) => {
       
       setTokens(resp.accessToken, resp.refreshToken);
-
+      console.log(resp);
       if (resp.user){
+        
         setUser(resp.user);
         setTokens(resp.accessToken, resp.refreshToken);
         router.push("/main");

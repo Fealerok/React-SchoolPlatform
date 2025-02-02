@@ -48,7 +48,6 @@ router.post("/auth", async (req: Request, res: Response): Promise<any>  => {
 router.post("/check-auth", checkTokens, (req: Request, res: Response): any => {
     let middlewareResponse = req.checkTokensResponse;
 
-    console.log(54);
     if (middlewareResponse?.isAuth){
 
         if (middlewareResponse.accessToken == undefined) {
@@ -71,10 +70,10 @@ router.post("/check-auth", checkTokens, (req: Request, res: Response): any => {
     }
 } );
 
-router.get("/get-classes", async (req: Request, res: Response) => {
+router.get("/get-classes", async (req: Request, res: Response): Promise<any> => {
     const classes = await db.getClasses();
 
-    res.status(200).json({classes: classes});
+    return res.status(200).json({classes: classes});
 });
 
 router.post("/get-students-in-class", async (req: Request, res: Response): Promise<any> => {
@@ -144,7 +143,7 @@ router.post("/update-student", async (req: Request, res: Response): Promise<any>
 
        const dbResponse = await db.updateStudent(updatedStudent);
 
-       console.log(dbResponse)
+       
        if (!dbResponse[0]){
             return res.status(501).json({message: dbResponse[1]});
        }

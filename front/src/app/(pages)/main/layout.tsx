@@ -23,14 +23,7 @@ const MainLayout = ({
 
     useEffect(() => {
         setAsideType("ClassList");
-        
-        checkAuth(getTokens()[0], getTokens()[1]).then(res => {
-            setUser(res.user);
-
-            if (!res.user) router.push("/auth");
-        });
-    }, []);
-
+    }, [])
 
   return (
     <div className='flex flex-col w-full h-full'>

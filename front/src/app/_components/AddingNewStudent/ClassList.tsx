@@ -71,6 +71,7 @@ const ClassesList = () => {
 
         getClasses();
         setActiveClassButtonId(null);
+        setStudents([]);
     }
 
     const deleteStudent = async () => {
@@ -88,9 +89,10 @@ const ClassesList = () => {
                 selectedStudentId: activeStudentButtonId
             })
         });
-
-        getStudentsInClass(activeClassButtonId);
+        
         setActiveStudentButtonId(null);
+        getStudentsInClass(activeClassButtonId);
+        
     }
 
     
@@ -122,6 +124,7 @@ const ClassesList = () => {
         else {
             setActiveClassButtonId(buttonId);
             getStudentsInClass(buttonId);
+            setActiveStudentButtonId(null);
         }
     }
 
@@ -131,8 +134,15 @@ const ClassesList = () => {
         else {
             setActiveStudentButtonId(buttonId);
             setSelectedStudent(students.filter(student => student.id == buttonId)[0]);
-            console.log(students.filter(student => student.id == buttonId)[0])
         }
+
+        // Обновляем состояния
+        setClassReg("");
+        setSurnameReg("");
+        setNameReg("");
+        setPatronymicReg("");
+        setLoginReg("");
+        setPasswordReg(""); // Пароль не подставляем, так как он не должен отображаться
     }
 
     const saveChangesStudent = async () => {
@@ -146,6 +156,8 @@ const ClassesList = () => {
             password: passwordReg
         }
 
+        
+
         const response = await fetch("http://localhost:3010/update-student", {
             method: "POST",
             headers: {
@@ -157,7 +169,7 @@ const ClassesList = () => {
         });
 
         if (response.ok){
-
+            getStudentsInClass(activeClassButtonId);
         }
 
         else{
@@ -183,9 +195,10 @@ const ClassesList = () => {
     }, [selectedStudent]);
 
 
+
     useEffect(() => {
         getClasses();
-    }, [newClass]);
+    }, [newClass, isAddClass]);
 
     useEffect(() => {
         getStudentsInClass(activeClassButtonId);
@@ -215,7 +228,7 @@ const ClassesList = () => {
                 }) : (<span className='text-center'>Список пуст!</span>)}
             </div>
 
-            <div className="flex flex-col gap-[20px] w-[90%]">
+            <div className="flex flex-col gap-[20px] w-[90%] mb-5">
                 <div className="flex w-full justify-between buttons">
                     <button onClick={() => setIsAddClass(true)}>Добавить</button>
                     <button onClick={deleteClass}>Удалить</button>
@@ -242,13 +255,9 @@ const ClassesList = () => {
                 
 
             <div className={`flex flex-col gap-[20px] w-[90%] ${activeClassButtonId ? `block` : `hidden`}`}>
-                <div className="flex w-full justify-between buttons">
+                <div className="flex w-full justify-between buttons mb-5">
                     <button onClick={() => setIsAddStudent(true)}>Добавить</button>
                     <button onClick={deleteStudent}>Удалить</button>
-                </div>
-
-                <div className="flex w-full justify-center buttons">
-                    <button className='flex-1'>Редактировать</button>
                 </div>
             </div>  
         </div>
@@ -288,7 +297,7 @@ const ClassesList = () => {
             </div>
 
             <div className={`flex flex-col gap-[20px] w-[90%] ${activeClassButtonId ? `block` : `hidden`}`}>
-                <div className="flex w-full justify-between buttons">
+                <div className="flex w-full justify-between buttons mb-5">
                     <button onClick={saveChangesStudent}>Сохранить</button>
                     <button onClick={() => {setActiveStudentButtonId(null)}}>Отменить</button>
                 </div>

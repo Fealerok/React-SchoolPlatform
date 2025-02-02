@@ -10,10 +10,19 @@ const page = () => {
 
   const {asideType, setAsideType} = useContext(AsideContext);
 
-  if (asideType == "ClassList"){
+  if (asideType == "Списки классы"){
     return (<ClassesList />)
   }
-  else{
+
+  else if (asideType == "Главная"){
+    return(<></>)
+  }
+
+  else if (asideType == "Расписание классы"){
+    return (<Schedule />)
+  }
+
+  else if (asideType == "Учителя"){
     return (<></>)
   }
   
