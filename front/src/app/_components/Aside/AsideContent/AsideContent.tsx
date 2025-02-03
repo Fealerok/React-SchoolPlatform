@@ -2,8 +2,8 @@ import React, { useContext, useEffect } from 'react'
 
 import AsideButton from '@/app/_ui/Aside_button/Aside_button'
 import { AuthContext } from '@/app/_context/authContext';
-import { getTokens } from '@/app/_utils/localStorage/localStorage';
-import checkAuth from '@/app/_utils/checkAuth/checkAuth';
+import Calendar from '../../Schedule/Calendar/Calendar';
+import { AsideContext } from '@/app/_context/asideContext';
 
 const AsideContent = ({
     type
@@ -13,9 +13,7 @@ const AsideContent = ({
 
     const {user, setUser} = useContext(AuthContext);
 
-    useEffect(() => {
-        console.log(user);
-    }, []);
+    const {asideType} = useContext(AsideContext);
 
     if (user?.role == "Администратор" || user?.role == "Техподдержка"){
         return (
@@ -27,7 +25,9 @@ const AsideContent = ({
                     <AsideButton buttonText='Учителя'/> 
                 </div>
                     
-                <div className="w-[280px] h-[280px] border border-black mt-auto mb-auto"></div>
+                <div className={`${asideType == "Расписание классы" ? "block" : "hidden"} w-[280px] h-[300px] rounded-6 border-[3px] border-border-blocks mt-auto mb-auto`}>
+                    <Calendar />
+                </div>
             </>
         )
     }

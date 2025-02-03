@@ -3,6 +3,7 @@
 import "./globals.css";
 import { AuthProvider, AuthContext } from "./_context/authContext";
 import { AsideProvider } from "./_context/asideContext";
+import { ScheduleProvider} from "./_context/scheduleContext";
 import { getTokens } from "./_utils/localStorage/localStorage";
 import checkAuth from "./_utils/checkAuth/checkAuth";
 import { setTokens } from "./_utils/localStorage/localStorage";
@@ -26,13 +27,15 @@ export default function RootLayout({
   return (
     <AuthProvider>
       <AsideProvider>
-        <html lang="en">
-            <body
-              className={`w-full h-screen flex justify-center items-center ${roboto_mono.className}`}
-            >
-              {children}
-            </body>
-        </html>
+        <ScheduleProvider>
+            <html lang="en">
+                <body
+                  className={`w-full h-screen flex justify-center items-center ${roboto_mono.className}`}
+                >
+                  {children}
+                </body>
+            </html>
+        </ScheduleProvider>
       </AsideProvider>
       
     </AuthProvider>

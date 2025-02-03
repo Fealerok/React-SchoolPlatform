@@ -44,7 +44,6 @@ const ClassesList = () => {
 
     const getClasses = async () => {
 
-        console.log(getTokens()[0]);
        const response = await fetch("http://localhost:3010/get-classes", {
             method: "POST",
             headers:{
@@ -54,20 +53,17 @@ const ClassesList = () => {
        });
 
        if (response.ok){
-        console.log(1);
         const classesJson = await response.json();
         setClasses(classesJson.classes);
         
        }
 
        else if (response.status == 401){
-        console.log(2);
         alert((await response.json()).message);
         router.push("/auth");
        }
 
        else if (response.status == 403){
-        console.log(3);
         const refreshToken = getTokens()[1];
         
         const updateAccessTokenResponse = await updateAccessToken(refreshToken as string);
@@ -238,14 +234,15 @@ const ClassesList = () => {
 
 
 
-    // useEffect(() => {
-    //     getClasses();
-    // }, [newClass, isAddClass, updatedClassName]);
+    useEffect(() => {
+        if (classes.length != 0){
+            getClasses();
+        }
+    }, [newClass, isAddClass, updatedClassName]);
 
     useEffect(() => {
         if (newStudent){
             getStudentsInClass(activeClassButtonId);
-            console.log(55);
         }
         
     }, [newStudent]);
