@@ -27,9 +27,11 @@ const MainLayout = ({
         const checkAuthResponse = checkAuth(tokens[0], tokens[1]);
 
         checkAuthResponse.then(async (resp) => {
-            console.log(resp);
+            
             if (resp.user){
+              
               await setUser(resp.user);
+              console.log(resp.user)
               setTokens(resp.accessToken, resp.refreshToken);
               setAsideType("Главная");
             }
@@ -39,12 +41,18 @@ const MainLayout = ({
         
     }, [])
 
+    
+
   return (
     <div className='flex flex-col w-full h-full'>
-        <header className='h-20 border-b-[3px] border-border-blocks'>
+        <header className='h-20 border-b-[3px] border-border-blocks flex justify-between items-center'>
             <div className="w-80 flex justify-center items-center">
                 <Image src={logo} alt=''/>
             </div>
+
+            <button>
+                <span>{user?.fullName}</span>
+            </button>
             
         </header>
         <div className='flex h-[calc(100%-80px)] w-full relative'>

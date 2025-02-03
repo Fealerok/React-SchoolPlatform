@@ -5,7 +5,8 @@ const checkAuth = async (accessToken: string | null, refreshToken: string | null
     user?: {
         id: number,
         login: string, 
-        role: string
+        role: string,
+        fullName: string
     }
 }>  => {
     //Делаем запрос на сервер с передачей токенов

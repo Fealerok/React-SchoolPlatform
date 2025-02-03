@@ -44,7 +44,7 @@ class Database{
                 //Проверяем совпадение паролей
                 if (isMatch){
                     query = `SELECT 
-                        "Users".id, "UsersData".login, "Roles".name as role_name
+                        "Users".id, "Users".full_name, "UsersData".login, "Roles".name as role_name
                         FROM "Users"
                         JOIN "Roles" ON "Users".id_role = "Roles".id
                         JOIN "UsersData" ON "Users".id_usersdata = "UsersData".id
@@ -63,7 +63,8 @@ class Database{
                         user: {
                             id: user.id,
                             login: user.login,
-                            role: user.role_name
+                            role: user.role_name,
+                            fullName: user.full_name
                         }
                     }
                 }

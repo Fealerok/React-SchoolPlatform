@@ -4,6 +4,7 @@ export default interface IAuth{
     user?: {
         id: number,
         login: string,
-        role: string
+        role: string,
+        fullName: string
     }
 }

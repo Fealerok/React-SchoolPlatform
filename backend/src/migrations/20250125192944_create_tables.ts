@@ -42,7 +42,7 @@ export async function up(knex: Knex): Promise<void> {
     try {
         await knex.schema.createTable("RefreshTokens", (table) => {
             table.increments('id').primary();
-            table.string("token");
+            table.text("token");
             table.integer("id_user").references("id").inTable("Users").onDelete("CASCADE").onUpdate("CASCADE");
         });
     } catch (error) {

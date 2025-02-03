@@ -15,6 +15,9 @@ const AsideContent = ({
 
     const {asideType} = useContext(AsideContext);
 
+    useEffect(() => {
+        console.log(user)
+    }, []);
     if (user?.role == "Администратор" || user?.role == "Техподдержка"){
         return (
             <>

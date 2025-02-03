@@ -7,8 +7,10 @@ interface IAuthContext {
     id: number;
     login: string;
     role: string;
+    fullName: string
+
   };
-  setUser: React.Dispatch<SetStateAction<{ id: number; login: string; role: string } | undefined>>;
+  setUser: React.Dispatch<SetStateAction<{ id: number; login: string; role: string; fullName: string } | undefined>>;
 }
 
 const AuthContext = createContext<IAuthContext>({
@@ -17,7 +19,7 @@ const AuthContext = createContext<IAuthContext>({
 });
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<{ id: number; login: string; role: string }>();
+  const [user, setUser] = useState<{ id: number; login: string; role: string; fullName: string }>();
 
 
   return <AuthContext.Provider value={{user, setUser}}>{children}</AuthContext.Provider>;
