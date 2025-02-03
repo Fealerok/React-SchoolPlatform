@@ -104,10 +104,11 @@ router.post("/check-auth", checkTokens, (req: Request, res: Response): any => {
 } );
 
 router.post("/get-classes", async (req: Request, res: Response): Promise<any> => {
+    console.log(1244);
     const { authorization } = req.headers;
     const accessToken = authorization?.split(" ")[1] as string;
 
-    if (accessToken == "null"){
+    if (accessToken == "null" || !accessToken){
         return res.status(401).json({message: "Требуется авторизация"});
     }
 
