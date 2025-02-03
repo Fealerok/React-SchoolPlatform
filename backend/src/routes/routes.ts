@@ -1,5 +1,8 @@
 import express, { Request, Response } from "express";
-import { JwtPayload } from "jsonwebtoken";
+import { JwtPayload, VerifyErrors } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+
+require("dotenv").config();
 
 const db = require('../database/database');
 const router = express.Router();
@@ -20,6 +23,35 @@ declare module 'express' {
     }
 }
 
+router.post("/update-access", (req: Request, res: Response) => {
+    console.log(12);
+    const {refreshToken} = req.body;
+    const refreshTokenSecret = process.env.JWT_REFRESH_SECRET as string;
+    jwt.verify(refreshToken, refreshTokenSecret, async (err: VerifyErrors | null, decoded_refresh: any) => {
+        if (err){
+            return res.status(403).json({message: "Доступ запрещен"});
+        }
+
+        else{
+            const refreshTokenInDB = await db.getRefreshToken(decoded_refresh.id);
+            
+            if (!refreshTokenInDB){
+                return res.status(403).json({message: "Доступ запрещен"})
+            }
+            else{
+                if (refreshToken != refreshTokenInDB){
+                    return res.status(403).json({message: "Доступ запрещен"})
+                }
+
+                else{
+                    const newAccessToken = JWTMethods.createAccessToken(decoded_refresh);
+                    return res.status(200).json({newAccessToken});
+                }
+            }
+        }
+    } );
+});
+
 router.post("/auth", async (req: Request, res: Response): Promise<any>  => {
     const login = req.body.login;
     const password = req.body.password;
@@ -31,7 +63,8 @@ router.post("/auth", async (req: Request, res: Response): Promise<any>  => {
         const accessToken = JWTMethods.createAccessToken(dbResponse.user);
         const refreshToken = JWTMethods.createRefreshToken(dbResponse.user);
 
-        await db.saveResfreshToken(dbResponse.user.id, refreshToken);
+
+        await db.saveRefreshToken(dbResponse.user.id, refreshToken);
 
         return res.status(200).json({
             user: dbResponse.user,
@@ -70,10 +103,31 @@ router.post("/check-auth", checkTokens, (req: Request, res: Response): any => {
     }
 } );
 
-router.get("/get-classes", async (req: Request, res: Response): Promise<any> => {
-    const classes = await db.getClasses();
+router.post("/get-classes", async (req: Request, res: Response): Promise<any> => {
+    const { authorization } = req.headers;
+    const accessToken = authorization?.split(" ")[1] as string;
 
-    return res.status(200).json({classes: classes});
+    if (accessToken == "null"){
+        return res.status(401).json({message: "Требуется авторизация"});
+    }
+
+    else{
+        const accessTokenSecret = process.env.JWT_ACCESS_SECRET as string;
+        jwt.verify(accessToken, accessTokenSecret, async (err) => {
+            
+            if (err){
+                
+                return res.status(403).json({message: "Доступ запрещен"});
+            }
+
+            else{
+                const classes = await db.getClasses();
+
+                return res.status(200).json({classes: classes});
+            }
+        } );
+    }
+    
 });
 
 router.post("/get-students-in-class", async (req: Request, res: Response): Promise<any> => {

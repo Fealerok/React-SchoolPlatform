@@ -14,8 +14,8 @@ const AsideContent = ({
     const {user, setUser} = useContext(AuthContext);
 
     useEffect(() => {
-        const checkAuthResult = checkAuth(getTokens()[0], getTokens()[1]).then((res) => setUser(res.user));
-    }, [])
+        console.log(user);
+    }, []);
 
     if (user?.role == "Администратор" || user?.role == "Техподдержка"){
         return (

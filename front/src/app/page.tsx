@@ -12,29 +12,29 @@ export default function Home() {
 
   const {user, setUser} = useContext(AuthContext);
   useEffect(() => {
-    console.log(123131);
+    setTokensAndUser();
+
+  }, []);
+
+  const setTokensAndUser = () => {
     const tokens = getTokens();
     const checkResponse = checkAuth(tokens[0], tokens[1]);
-    checkResponse.then((resp) => {
-      
-      setTokens(resp.accessToken, resp.refreshToken);
+
+    checkResponse.then(async (resp) => {
       console.log(resp);
       if (resp.user){
-        
-        setUser(resp.user);
+        await setUser(resp.user);
         setTokens(resp.accessToken, resp.refreshToken);
         router.push("/main");
       }
 
-      else{
-        router.push("/auth");
-      }
+      else router.push("/auth");
     });
-
-  }, []);
+  }
 
   return (
     <div className="h-full">
+      
     </div>
   );
 }

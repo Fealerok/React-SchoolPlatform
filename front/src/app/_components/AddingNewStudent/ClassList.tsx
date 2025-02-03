@@ -5,9 +5,10 @@ import Input from '@/app/_ui/Input/Input';
 import AddClass from './AddClass/AddClass';
 import "./ClassList.css";
 import AddStudent from './AddStudent/AddStudent';
-import { getTokens } from '@/app/_utils/localStorage/localStorage';
+import { getTokens, setTokens } from '@/app/_utils/localStorage/localStorage';
 import EditClass from './EditClass/EditClass';
-import checkAuth from '@/app/_utils/checkAuth/checkAuth';
+import { useRouter } from 'next/navigation';
+import updateAccessToken from '@/app/_utils/checkAuth/updateAccessToken';
 
 interface IStudents{
     id: number,
@@ -39,11 +40,14 @@ const ClassesList = () => {
     const [patronymicReg, setPatronymicReg] = useState<string>();
     const [loginReg, setLoginReg] = useState<string>();
     const [passwordReg, setPasswordReg] = useState<string>();
+    const router = useRouter();
 
     const getClasses = async () => {
+
        const response = await fetch("http://localhost:3010/get-classes", {
-            method: "GET",
+            method: "POST",
             headers:{
+                "Authorization": "Bearer " + getTokens()[0],
                 "Content-Type":"applicaiton/json",
             }
        });
@@ -51,6 +55,21 @@ const ClassesList = () => {
        if (response.ok){
         const classesJson = await response.json();
         setClasses(classesJson.classes);
+        
+       }
+
+       else if (response.status == 401){
+
+        alert((await response.json()).message);
+        router.push("/auth");
+       }
+
+       else if (response.status == 403){
+        
+        const refreshToken = getTokens()[1];
+        const updateAccessTokenResponse = await updateAccessToken(refreshToken as string);
+        setTokens(updateAccessTokenResponse, refreshToken as string);
+        getClasses();
        }
 
     }
@@ -209,13 +228,16 @@ const ClassesList = () => {
 
 
 
-    useEffect(() => {
-        getClasses();
-    }, [newClass, isAddClass, updatedClassName]);
+    // useEffect(() => {
+    //     getClasses();
+    // }, [newClass, isAddClass, updatedClassName]);
 
     useEffect(() => {
-        getStudentsInClass(activeClassButtonId);
-        console.log(55);
+        if (newStudent){
+            getStudentsInClass(activeClassButtonId);
+            console.log(55);
+        }
+        
     }, [newStudent]);
 
     useEffect(() => {

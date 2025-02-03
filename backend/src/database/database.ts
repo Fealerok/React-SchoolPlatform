@@ -1,6 +1,7 @@
 const {Pool} = require("pg");
 const bcrypt = require("bcryptjs");
 const cryptoJS = require("crypto-js");
+import { log } from "node:console";
 import { up } from "../migrations/20250125192944_create_tables";
 import IAuth from "./interfaces";
 require("dotenv").config();
@@ -97,7 +98,19 @@ class Database{
         }
     }
 
-    saveResfreshToken = async (idUser: number, refreshToken: string) => {
+    getRefreshToken = async (idUser: number) => {
+        try {
+            const refreshTokenRow = (await this.db.query(`SELECT * FROM "RefreshTokens" WHERE id_user=$1`, [idUser])).rows;
+
+            if (refreshTokenRow.length != 0) return refreshTokenRow[0].token;
+            else return null;
+        } catch (error) {
+            console.log(`Ошибка получения рефреш-токена в БД: ${error}`);
+            
+        }
+    }
+
+    saveRefreshToken = async (idUser: number, refreshToken: string) => {
         try {
             const refreshInDatabase = (await this.db.query(`SELECT * FROM "RefreshTokens" WHERE id_user=$1`, [idUser])).rows;
 

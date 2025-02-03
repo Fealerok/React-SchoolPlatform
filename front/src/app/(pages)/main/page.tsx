@@ -1,5 +1,4 @@
 "use client"
-
 import React, {useContext} from 'react'
 import Schedule from '@/app/_components/Schedule/Schedule'
 

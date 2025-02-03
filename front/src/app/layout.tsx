@@ -2,11 +2,10 @@
 
 import "./globals.css";
 import { AuthProvider, AuthContext } from "./_context/authContext";
-import { AsideContext, AsideProvider } from "./_context/asideContext";
+import { AsideProvider } from "./_context/asideContext";
 import { getTokens } from "./_utils/localStorage/localStorage";
 import checkAuth from "./_utils/checkAuth/checkAuth";
 import { setTokens } from "./_utils/localStorage/localStorage";
-import { useRouter } from "next/navigation";
 
 import {Roboto_Mono} from "next/font/google";
 import { useEffect, useContext } from "react";
@@ -21,6 +20,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+
 
   return (
     <AuthProvider>

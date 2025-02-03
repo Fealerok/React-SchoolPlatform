@@ -1,5 +1,5 @@
 "use client"
-import React, {useContext, useEffect, useState } from 'react'
+import React, {useContext, useEffect} from 'react'
 import logo from "../../../../public/logo.png";
 import Image from 'next/image';
 import Aside from '@/app/_components/Aside/Aside';
@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 
 import { AsideContext } from '@/app/_context/asideContext';
 import { AuthContext } from '@/app/_context/authContext';
+import checkAuth from '@/app/_utils/checkAuth/checkAuth';
+import { getTokens, setTokens } from '@/app/_utils/localStorage/localStorage';
 
 
 
@@ -17,10 +19,24 @@ const MainLayout = ({
 }) => {
 
     const {asideType, setAsideType} = useContext(AsideContext);
+    const {user, setUser} = useContext(AuthContext);
+    const router = useRouter();
 
     useEffect(() => {
-        console.log(55);
-        setAsideType("Главная");
+        const tokens = getTokens();
+        const checkAuthResponse = checkAuth(tokens[0], tokens[1]);
+
+        checkAuthResponse.then(async (resp) => {
+            console.log(resp);
+            if (resp.user){
+              await setUser(resp.user);
+              setTokens(resp.accessToken, resp.refreshToken);
+              setAsideType("Главная");
+            }
+      
+            else router.push("/auth");
+          });
+        
     }, [])
 
   return (

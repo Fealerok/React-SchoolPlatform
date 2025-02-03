@@ -1,7 +1,9 @@
 "use client"
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import Input from '@/app/_ui/Input/Input'
+import { getTokens } from '@/app/_utils/localStorage/localStorage'
+import { AuthContext } from '@/app/_context/authContext'
 
 interface IAddClass{
     isAddClass: boolean, 
@@ -14,6 +16,7 @@ interface IAddClass{
 const AddClass = ({isAddClass, setIsAddClass, setNewClass} : IAddClass) => {
 
     const [nameClass, setNameClass] = useState<string | undefined>("");
+    const {user, setUser} = useContext(AuthContext);
 
     const addNewClass = async () => {
         const response = await fetch("http://localhost:3010/add-new-class", {
