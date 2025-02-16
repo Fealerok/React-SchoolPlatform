@@ -27,7 +27,6 @@ const MainLayout = ({
         const checkAuthResponse = checkAuth(tokens[0], tokens[1]);
 
         checkAuthResponse.then(async (resp) => {
-            
             if (resp.user){
               
               await setUser(resp.user);
@@ -36,7 +35,10 @@ const MainLayout = ({
               setAsideType("Главная");
             }
       
-            else router.push("/auth");
+            else {
+                router.push("/auth");
+                setTokens(undefined, undefined);
+            }
           });
         
     }, [])

@@ -307,6 +307,30 @@ class Database{
             
         }
     }
+
+    addNewLesson = async (newLessonName: string, selectedTime: string, selectedDate: Date, idUser: number) => {
+        try {
+            console.log(idUser);
+            await this.db.query(`INSERT INTO "Lessons"("name", "lesson_date", "lesson_start_time", "id_teacher")
+                VALUES ($1, $2, $3, $4)`, [newLessonName, selectedDate, selectedTime, idUser]);
+        } catch (error) {
+            console.log(`Ошибка добавления урока в БД: ${error}`);
+            
+        }
+    }
+
+    checkAvailabilityClass = async (className: string) => {
+        try {
+            const classesRows = (await this.db.query(`SELECT * FROM "Classes" WHERE name=$1`, [className])).rows;
+
+            if (classesRows.length == 0) return false;
+
+            return true;
+        } catch (error) {
+            console.log(`Ошибка проверки наличия класса в бд: ${error}`);
+            
+        }
+    }
 }
 
 module.exports = new Database();

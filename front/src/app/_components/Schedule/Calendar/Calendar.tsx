@@ -43,6 +43,8 @@ const Calendar: React.FC = () => {
     setSelectedDates(dates);
     setSelectedWeek(weekIndex);
     setDates(dates);
+
+    console.log(dates);
   };
 
   const renderDays = () => {

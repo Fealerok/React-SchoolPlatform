@@ -28,7 +28,10 @@ export default function Home() {
         router.push("/main");
       }
 
-      else router.push("/auth");
+      else {
+        router.push("/auth");
+        setTokens(undefined, undefined);
+      }
     });
   }
 

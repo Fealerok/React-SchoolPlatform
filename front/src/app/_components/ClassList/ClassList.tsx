@@ -235,7 +235,7 @@ const ClassesList = () => {
 
 
     useEffect(() => {
-        if (classes.length != 0){
+        if (classes.length == 0){
             getClasses();
         }
     }, [newClass, isAddClass, updatedClassName]);
@@ -252,7 +252,7 @@ const ClassesList = () => {
     }, []);
 
   return (
-    <div className='flex justify-between w-full h-full'>
+    <div className='flex justify-between w-full h-full border'>
 
         <EditClass selectedClassId={activeClassButtonId} isEditClass={isEditClass} setIsEditClass={setIsEditClass} setClassName={setClassName}></EditClass>
         <AddClass setNewClass={setNewClass} isAddClass={isAddClass} setIsAddClass={setIsAddClass}></AddClass>

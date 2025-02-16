@@ -82,7 +82,7 @@ router.post("/check-auth", checkTokens, (req: Request, res: Response): any => {
 
     if (middlewareResponse?.isAuth){
 
-        if (middlewareResponse.accessToken == undefined) {
+        if (!middlewareResponse.accessToken) {
             middlewareResponse.accessToken = JWTMethods.createAccessToken(middlewareResponse.user);
         }
         return res.status(200).json({
@@ -215,6 +215,31 @@ router.post("/update-classname", async (req: Request, res: Response): Promise<an
 
         await db.updateClassName(updatedClassName, selectedClassId);
         return res.status(200).json({message: "Успешно"});
+    } catch (error) {
+        return res.status(500).json({message: "Ошибка 500"});
+    }
+});
+
+router.post("/add-new-lesson", async (req: Request, res: Response): Promise<any> => {
+    try {
+        const {newLessonName} = req.body;
+        const {selectedTime} = req.body;
+        const {selectedDate} = req.body;
+        const {idUser} = req.body;
+
+        await db.addNewLesson(newLessonName, selectedTime, selectedDate, idUser);
+    } catch (error) {
+        return res.status(500).json({message: "Ошибка 500"});
+    }
+});
+
+router.post("/check-availability-class", async (req: Request, res: Response): Promise<any> => {
+    try {
+        const {className} = req.body;
+
+        const result = await db.checkAvailabilityClass(className);
+
+        return res.status(result ? 200 : 500).json({message: "Успешно"});
     } catch (error) {
         return res.status(500).json({message: "Ошибка 500"});
     }

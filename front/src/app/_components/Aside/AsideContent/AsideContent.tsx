@@ -28,17 +28,23 @@ const AsideContent = ({
                     <AsideButton buttonText='Учителя'/> 
                 </div>
                     
-                <div className={`${asideType == "Расписание классы" ? "block" : "hidden"} w-[280px] h-[300px] rounded-6 border-[3px] border-border-blocks mt-auto mb-auto`}>
+                <div className={`${asideType == "Главная" ? "block" : "hidden"} w-[280px] h-[300px] rounded-6 border-[3px] border-border-blocks mt-auto mb-auto`}>
                     <Calendar />
                 </div>
             </>
         )
     }
 
-    else{
-        return ( 
+    else if (user?.role == "Учитель"){
+        return (
             <>
-            
+                <div className="flex flex-col w-full gap-8 mt-[45px]">
+                    <AsideButton buttonText='Главная'/> 
+                </div>
+                    
+                <div className={`${asideType == "Главная" ? "block" : "hidden"} w-[280px] h-[300px] rounded-6 border-[3px] border-border-blocks mt-auto mb-auto`}>
+                    <Calendar />
+                </div>
             </>
         )
     }

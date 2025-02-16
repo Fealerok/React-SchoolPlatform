@@ -32,11 +32,13 @@ export async function up(knex: Knex): Promise<void> {
             table.string('full_name').notNullable();
             table.integer('id_role').notNullable();
             table.integer("id_class");
-            table.integer('id_usersdata').notNullable().references('id').inTable('UsersData').onDelete("CASCADE").onUpdate("CASCADE");
+            table.integer('id_usersdata').references('id').inTable('UsersData').onDelete("CASCADE").onUpdate("CASCADE");
         });
     } catch (error) {
         console.log(`Ошибка создания Users ${error}`);
     }
+
+    
 
     //Создание таблицы RefreshTokens
     try {
@@ -59,6 +61,20 @@ export async function up(knex: Knex): Promise<void> {
         console.log(`Ошибка создания Classes ${error}`);
     }
     
+
+    //Создание таблицы Lessons
+    try {
+        await knex.schema.createTable("Lessons", (table) => {
+            table.increments('id').primary();
+            table.text("name");
+            table.date("lesson_date");
+            table.time("lesson_start_time");
+            table.integer("id_teacher").references("id").inTable("Users").onDelete("CASCADE").onUpdate("CASCADE");
+            table.integer("id_class").references("id").inTable("Classes").onDelete("CASCADE").onUpdate("CASCADE");;
+        });
+    } catch (error) {
+        console.log(`Ошибка создания Users ${error}`);
+    }
 }
 
 

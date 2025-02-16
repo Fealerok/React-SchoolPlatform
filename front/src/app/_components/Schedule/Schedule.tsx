@@ -1,10 +1,13 @@
 "use client"
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import "./Schedule.css"
 import { ScheduleContext } from '@/app/_context/scheduleContext';
+import AddNewLesson from './AddNewLesson/AddNewLesson';
 
 const Schedule = () => {
-
+    const [isAddNewLesson, setIsAddNewLesson] = useState(false);
+    const [selectedTime, setSelectedTime] = useState<string>();
+    const [selectedDate, setSelectedDate] = useState<Date>();
     const {dates} = useContext(ScheduleContext);
 
     const times = [
@@ -14,32 +17,48 @@ const Schedule = () => {
         "18:00", "19:00", "20:00"
     ]
 
+    const cellClickHandle = (timeIndex: number, dayIndex: number) => {
+        if (dates.length != 0) setIsAddNewLesson(true);
+        console.log(times[timeIndex], dates[dayIndex]);
+        setSelectedTime(times[timeIndex]);
+        setSelectedDate(dates[dayIndex]);
+        console.log(isAddNewLesson);
+    }
+
     useEffect(() => {
         console.log(dates[0])
     }, []);
 
     return (
-        <table className='w-full h-full table-fixed'>
-        <tbody>
-        <tr>
-            <th className='w-[100px]'></th>
-            <th>{String(dates[0]).split(" ")[2]} Понедельник</th>
-            <th>{String(dates[1]).split(" ")[2]} Вторник</th>
-            <th>{String(dates[2]).split(" ")[2]} Среда</th>
-            <th>{String(dates[3]).split(" ")[2]} Четверг</th>
-            <th>{String(dates[4]).split(" ")[2]} Пятница</th>
-        </tr>
-    
-        {times.map((time, index) => (
-            <tr key={index}>
-                <td>{time}</td>
-                {Array.from({length: 5}).map((_, i) => (
-                    <td key={i} onClick={() => console.log(`${index} - ${i}`)}></td>
-                ))}
-            </tr>
-        ))}
-        </tbody>
-    </table>
+        <div className={`w-full h-full`}>
+            <AddNewLesson 
+            isAddNewLesson={isAddNewLesson}
+            setIsAddNewLesson={setIsAddNewLesson}
+            selectedTime={selectedTime}
+            selectedDate={selectedDate}></AddNewLesson>
+
+            <table className={`${isAddNewLesson ? "pointer-events-none" : ""} w-full h-full table-fixed`}>
+                <tbody>
+                    <tr>
+                        <th className='w-[100px]'></th>
+                        <th>{String(dates[0]).split(" ")[2]} Понедельник</th>
+                        <th>{String(dates[1]).split(" ")[2]} Вторник</th>
+                        <th>{String(dates[2]).split(" ")[2]} Среда</th>
+                        <th>{String(dates[3]).split(" ")[2]} Четверг</th>
+                        <th>{String(dates[4]).split(" ")[2]} Пятница</th>
+                    </tr>
+
+                    {times.map((time, index) => (
+                        <tr key={index}>
+                            <td>{time}</td>
+                            {Array.from({ length: 5 }).map((_, i) => (
+                                <td key={i} onClick={() => cellClickHandle(index, i)}></td>
+                            ))}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
       )
 }
 
