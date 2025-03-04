@@ -336,7 +336,7 @@ const ClassesList = () => {
 
                 <form className='flex items-center justify-between'>
                     <span>Пароль: </span>
-                    <Input type={"Текст"} setInputValue={setPasswordReg} inputPlaceholder='Пароль' isLabel={false} />
+                    <Input type={"Текст"} initialText={""} setInputValue={setPasswordReg} inputPlaceholder='Пароль' isLabel={false} />
                 </form>
             </div>
 

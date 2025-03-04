@@ -9,6 +9,7 @@ import { AsideContext } from '@/app/_context/asideContext';
 import { AuthContext } from '@/app/_context/authContext';
 import checkAuth from '@/app/_utils/checkAuth/checkAuth';
 import { getTokens, setTokens } from '@/app/_utils/localStorage/localStorage';
+import { fetchWithAuth } from '@/app/_utils/fetchWithAuth/fetchWithAuth';
 
 
 
@@ -23,25 +24,49 @@ const MainLayout = ({
     const router = useRouter();
 
     useEffect(() => {
-        const tokens = getTokens();
-        const checkAuthResponse = checkAuth(tokens[0], tokens[1]);
 
-        checkAuthResponse.then(async (resp) => {
-            if (resp.user){
+
+        startFunction();
+
+
+        // const tokens = getTokens();
+        // const checkAuthResponse = checkAuth(tokens[0], tokens[1]);
+
+        // checkAuthResponse.then(async (resp) => {
+        //     if (resp.user){
               
-              await setUser(resp.user);
-              console.log(resp.user)
-              setTokens(resp.accessToken, resp.refreshToken);
-              setAsideType("Главная");
-            }
+        //       await setUser(resp.user);
+        //       console.log(resp.user)
+        //       setTokens(resp.accessToken, resp.refreshToken);
+        //       setAsideType("Главная");
+        //     }
       
-            else {
-                router.push("/auth");
-                setTokens(undefined, undefined);
-            }
-          });
+        //     else {
+        //         router.push("/auth");
+        //         setTokens(undefined, undefined);
+        //     }
+        //   });
         
     }, [])
+
+    const startFunction = async () => {
+        console.log(123);
+        const response = await fetchWithAuth("/check-auth", {
+            method: "POST"
+        });
+        console.log(response);
+        console.log(323);
+        if (!response?.user){
+            router.push("/auth");
+        }
+
+        else{
+            console.log();
+            await setUser(response.user);
+            console.log(response.user);
+            setAsideType("Главная");
+        }
+    }
 
     
 

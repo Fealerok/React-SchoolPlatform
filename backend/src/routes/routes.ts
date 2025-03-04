@@ -23,42 +23,34 @@ declare module 'express' {
     }
 }
 
-router.post("/update-access", (req: Request, res: Response) => {
-    console.log(12);
-    const {refreshToken} = req.body;
+router.post("/update-access", (req: Request, res: Response): any => {
+    const { refreshToken } = req.body;
     const refreshTokenSecret = process.env.JWT_REFRESH_SECRET as string;
+
+    if (!refreshToken) return res.sendStatus(403);
+
     jwt.verify(refreshToken, refreshTokenSecret, async (err: VerifyErrors | null, decoded_refresh: any) => {
-        if (err){
-            return res.status(403).json({message: "Доступ запрещен"});
+        if (err) return res.sendStatus(403);
+
+        const refreshTokenInDB = await db.getRefreshToken(decoded_refresh.id);
+
+        if (!refreshTokenInDB || refreshTokenInDB != refreshToken) {
+            return res.sendStatus(403);
         }
 
-        else{
-            const refreshTokenInDB = await db.getRefreshToken(decoded_refresh.id);
-            
-            if (!refreshTokenInDB){
-                return res.status(403).json({message: "Доступ запрещен"})
-            }
-            else{
-                if (refreshToken != refreshTokenInDB){
-                    return res.status(403).json({message: "Доступ запрещен"})
-                }
+        const newAccessToken = JWTMethods.createAccessToken(decoded_refresh);
 
-                else{
-                    const newAccessToken = JWTMethods.createAccessToken(decoded_refresh);
-                    return res.status(200).json({newAccessToken});
-                }
-            }
-        }
-    } );
+        return res.status(200).json({ newAccessToken });
+    });
 });
 
-router.post("/auth", async (req: Request, res: Response): Promise<any>  => {
+router.post("/auth", async (req: Request, res: Response): Promise<any> => {
     const login = req.body.login;
     const password = req.body.password;
 
     let dbResponse = await db.authUser(login, password);
 
-    if (dbResponse.isAuth){
+    if (dbResponse.isAuth) {
         console.log(dbResponse.user);
         const accessToken = JWTMethods.createAccessToken(dbResponse.user);
         const refreshToken = JWTMethods.createRefreshToken(dbResponse.user);
@@ -71,71 +63,79 @@ router.post("/auth", async (req: Request, res: Response): Promise<any>  => {
             refreshToken
         });
     }
-    else{
-        return res.status(401).json({errorMessage: dbResponse.message});
-    }   
-        
+    else {
+        return res.status(401).json({ errorMessage: dbResponse.message });
+    }
+
 });
 
-router.post("/check-auth", checkTokens, (req: Request, res: Response): any => {
-    let middlewareResponse = req.checkTokensResponse;
+router.post("/check-auth", (req: Request, res: Response): any => {
 
-    if (middlewareResponse?.isAuth){
+    const authorization: string | undefined = req.headers.authorization;
+    let accessToken = authorization?.split(" ")[1];
+    const accessTokenSecret = process.env.JWT_ACCESS_SECRET as string;
 
-        if (!middlewareResponse.accessToken) {
-            middlewareResponse.accessToken = JWTMethods.createAccessToken(middlewareResponse.user);
-        }
-        return res.status(200).json({
-            accessToken: middlewareResponse.accessToken,
-            refreshToken: middlewareResponse.refreshToken,
-            isAuth: middlewareResponse.isAuth,
-            user: middlewareResponse.user
+
+    if (!accessToken) return res.sendStatus(401)
+    else {
+        jwt.verify(accessToken, accessTokenSecret, async (err: VerifyErrors | null, decoded_access: any) => {
+            if (err) return res.sendStatus(401);
+
+            console.log(decoded_access);
+            return res.status(200).json({
+                isAuth: true,
+                user: decoded_access
+            });
         });
     }
-    else{
-        return res.status(403).json({
-            accessToken: middlewareResponse?.accessToken,
-            refreshToken: middlewareResponse?.refreshToken,
-            isAuth: middlewareResponse?.isAuth,
-            user: middlewareResponse?.user
-        });
-    }
-} );
+
+    console.log(1234);
+
+});
 
 router.post("/get-classes", async (req: Request, res: Response): Promise<any> => {
-    console.log(1244);
-    const { authorization } = req.headers;
-    const accessToken = authorization?.split(" ")[1] as string;
+    try {
+        const { authorization } = req.headers;
+        const accessToken = authorization?.split(" ")[1] as string;
 
-    if (accessToken == "null" || !accessToken){
-        return res.status(401).json({message: "Требуется авторизация"});
+        if (accessToken == "null" || !accessToken) {
+            return res.status(401).json({ message: "Требуется авторизация" });
+        }
+
+        else {
+            const accessTokenSecret = process.env.JWT_ACCESS_SECRET as string;
+            jwt.verify(accessToken, accessTokenSecret, async (err) => {
+
+                if (err) {
+
+                    return res.status(403).json({ message: "Доступ запрещен" });
+                }
+
+                else {
+                    const classes = await db.getClasses();
+
+                    return res.status(200).json({ classes: classes });
+                }
+            });
+        }
+    } catch (error) {
+        console.log(`Ошибка получения классов: ${error}`);
     }
 
-    else{
-        const accessTokenSecret = process.env.JWT_ACCESS_SECRET as string;
-        jwt.verify(accessToken, accessTokenSecret, async (err) => {
-            
-            if (err){
-                
-                return res.status(403).json({message: "Доступ запрещен"});
-            }
 
-            else{
-                const classes = await db.getClasses();
-
-                return res.status(200).json({classes: classes});
-            }
-        } );
-    }
-    
 });
 
 router.post("/get-students-in-class", async (req: Request, res: Response): Promise<any> => {
-    const selectedClassId = req.body.selectedClassId;
+    try {
+        const selectedClassId = req.body.selectedClassId;
 
-    const students = await db.getStudentsInSelectedClass(selectedClassId);
+        const students = await db.getStudentsInSelectedClass(selectedClassId);
 
-    return res.status(200).json(students);
+        return res.status(200).json(students);
+    } catch (error) {
+        console.log(`Ошибка получения учеников: ${error}`);
+    }
+
 });
 
 router.post("/add-new-class", async (req: Request, res: Response): Promise<any> => {
@@ -144,9 +144,9 @@ router.post("/add-new-class", async (req: Request, res: Response): Promise<any> 
 
         await db.addNewClass(nameNewClass);
 
-        return res.status(200).json({message: "Успешно"});
+        return res.status(200).json({ message: "Успешно" });
     } catch (error) {
-        return res.status(500).json({message: "Ошибка 500"});
+        return res.status(500).json({ message: "Ошибка 500" });
     }
 
 });
@@ -157,9 +157,9 @@ router.delete("/delete-class", async (req: Request, res: Response): Promise<any>
 
         await db.deleteClass(idSelectedClass);
 
-        return res.status(200).json({message: "Успешно!"});
+        return res.status(200).json({ message: "Успешно!" });
     } catch (error) {
-        return res.status(500).json({message: "Ошибка 500"});
+        return res.status(500).json({ message: "Ошибка 500" });
     }
 });
 
@@ -169,79 +169,79 @@ router.post("/add-student-in-class", async (req: Request, res: Response): Promis
         if (req.body.patronymic) fullName = `${req.body.surname} ${req.body.name} ${req.body.patronymic}`;
         else fullName = `${req.body.surname} ${req.body.name}`;
 
-        const {selectedClassId} = req.body;
+        const { selectedClassId } = req.body;
 
         await db.addStudentInClass(fullName, selectedClassId);
 
-        return res.status(200).json({message: "Успешно"});
+        return res.status(200).json({ message: "Успешно" });
     } catch (error) {
-        return res.status(500).json({message: "Ошибка 500"});
+        return res.status(500).json({ message: "Ошибка 500" });
     }
 });
 
 router.delete("/delete-student", async (req: Request, res: Response): Promise<any> => {
     try {
-        const {selectedStudentId} = req.body;
-        
+        const { selectedStudentId } = req.body;
+
         await db.deleteStudent(selectedStudentId);
 
-        return res.status(200).json({message: "Успешно"});
+        return res.status(200).json({ message: "Успешно" });
     } catch (error) {
-        return res.status(500).json({message: "Ошибка 500"});
+        return res.status(500).json({ message: "Ошибка 500" });
     }
 });
 
 router.post("/update-student", async (req: Request, res: Response): Promise<any> => {
     try {
-        const {updatedStudent} = req.body;
+        const { updatedStudent } = req.body;
 
-       const dbResponse = await db.updateStudent(updatedStudent);
+        const dbResponse = await db.updateStudent(updatedStudent);
 
-       
-       if (!dbResponse[0]){
-            return res.status(501).json({message: dbResponse[1]});
-       }
 
-        return res.status(200).json({message: "Успешно"});
+        if (!dbResponse[0]) {
+            return res.status(501).json({ message: dbResponse[1] });
+        }
+
+        return res.status(200).json({ message: "Успешно" });
     } catch (error) {
-        return res.status(500).json({message: "Ошибка 500"});
+        return res.status(500).json({ message: "Ошибка 500" });
     }
 });
 
 router.post("/update-classname", async (req: Request, res: Response): Promise<any> => {
     try {
-        const {updatedClassName} = req.body;
-        const {selectedClassId} = req.body;
+        const { updatedClassName } = req.body;
+        const { selectedClassId } = req.body;
 
         await db.updateClassName(updatedClassName, selectedClassId);
-        return res.status(200).json({message: "Успешно"});
+        return res.status(200).json({ message: "Успешно" });
     } catch (error) {
-        return res.status(500).json({message: "Ошибка 500"});
+        return res.status(500).json({ message: "Ошибка 500" });
     }
 });
 
 router.post("/add-new-lesson", async (req: Request, res: Response): Promise<any> => {
     try {
-        const {newLessonName} = req.body;
-        const {selectedTime} = req.body;
-        const {selectedDate} = req.body;
-        const {idUser} = req.body;
+        const { newLessonName } = req.body;
+        const { selectedTime } = req.body;
+        const { selectedDate } = req.body;
+        const { idUser } = req.body;
 
         await db.addNewLesson(newLessonName, selectedTime, selectedDate, idUser);
     } catch (error) {
-        return res.status(500).json({message: "Ошибка 500"});
+        return res.status(500).json({ message: "Ошибка 500" });
     }
 });
 
 router.post("/check-availability-class", async (req: Request, res: Response): Promise<any> => {
     try {
-        const {className} = req.body;
+        const { className } = req.body;
 
         const result = await db.checkAvailabilityClass(className);
 
-        return res.status(result ? 200 : 500).json({message: "Успешно"});
+        return res.status(result ? 200 : 500).json({ message: "Успешно" });
     } catch (error) {
-        return res.status(500).json({message: "Ошибка 500"});
+        return res.status(500).json({ message: "Ошибка 500" });
     }
 });
 

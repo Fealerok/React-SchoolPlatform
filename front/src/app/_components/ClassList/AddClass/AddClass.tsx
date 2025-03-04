@@ -29,6 +29,7 @@ const AddClass = ({isAddClass, setIsAddClass, setNewClass} : IAddClass) => {
             })
         });
 
+        if (response.ok) setNewClass(nameClass);
         console.log(response)
     }
 

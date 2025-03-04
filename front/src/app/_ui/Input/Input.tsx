@@ -26,7 +26,6 @@ const Input = ({
         setInputValue(e.target.value);
     }
 
-
   return (
     <div className='relative h-[50px] w-full'>
         <input 

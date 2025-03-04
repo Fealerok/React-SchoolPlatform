@@ -12,7 +12,7 @@ export async function seed(knex: Knex): Promise<void> {
     // Inserts seed entries
     await knex("Users").insert([
         {
-            full_name: "Чаплыгин Артём Алексеевич", 
+            full_name: "Иванов Иван Иванович", 
             id_role: roles.find(role => role.name == "Техподдержка")?.id, 
             id_usersdata: usersData.find(ud => ud.login == process.env.TECH_LOGIN)?.id
         }
