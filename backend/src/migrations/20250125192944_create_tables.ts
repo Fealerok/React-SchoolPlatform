@@ -69,8 +69,7 @@ export async function up(knex: Knex): Promise<void> {
             table.text("name");
             table.date("lesson_date");
             table.time("lesson_start_time");
-            table.integer("id_teacher").references("id").inTable("Users").onDelete("CASCADE").onUpdate("CASCADE");
-            table.integer("id_class").references("id").inTable("Classes").onDelete("CASCADE").onUpdate("CASCADE");;
+            table.integer("id_class").references("id").inTable("Classes").onDelete("CASCADE").onUpdate("CASCADE");
         });
     } catch (error) {
         console.log(`Ошибка создания Users ${error}`);

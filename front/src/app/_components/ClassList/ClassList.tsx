@@ -9,6 +9,7 @@ import { getTokens, setTokens } from '@/app/_utils/localStorage/localStorage';
 import EditClass from './EditClass/EditClass';
 import { useRouter } from 'next/navigation';
 import updateAccessToken from '@/app/_utils/checkAuth/updateAccessToken';
+import { fetchWithAuth } from '@/app/_utils/fetchWithAuth/fetchWithAuth';
 
 interface IStudents{
     id: number,
@@ -44,40 +45,12 @@ const ClassesList = () => {
 
     const getClasses = async () => {
 
-       const response = await fetch("http://localhost:3010/get-classes", {
-            method: "POST",
-            headers:{
-                "Authorization": "Bearer " + getTokens()[0],
-                "Content-Type":"applicaiton/json",
-            }
-       });
-
-       if (response.ok){
-        const classesJson = await response.json();
-        setClasses(classesJson.classes);
+       const response = await fetchWithAuth("/get-classes", {method: "POST"});
         
+       if (!response) router.push("/auth");
+       else{
+        setClasses(response.classes);
        }
-
-       else if (response.status == 401){
-        alert((await response.json()).message);
-        router.push("/auth");
-       }
-
-       else if (response.status == 403){
-        const refreshToken = getTokens()[1];
-        
-        const updateAccessTokenResponse = await updateAccessToken(refreshToken as string);
-
-        console.log(updateAccessTokenResponse);
-        if (updateAccessTokenResponse == "Отсутствует Refresh") {
-            alert(updateAccessTokenResponse);
-            router.push("/auth");
-            return;
-        }
-        setTokens(updateAccessTokenResponse, refreshToken as string);
-        getClasses();
-       }
-
     }
 
     const deleteClass = async () => {
@@ -86,19 +59,24 @@ const ClassesList = () => {
             return;
         }
 
-        const response = await fetch("http://localhost:3010/delete-class", {
+        const response = await fetchWithAuth("/delete-class", {
             method: "DELETE",
-            headers:{
-                "Content-Type":"application/json"
+            headers: {
+                "Content-Type": "application/json",
             },
             body: JSON.stringify({
                 selectedClassId: activeClassButtonId
             })
         });
 
-        getClasses();
-        setActiveClassButtonId(null);
-        setStudents([]);
+        if (!response) router.push("/auth");
+        else{
+            getClasses();
+            setActiveClassButtonId(null);
+            setStudents([]);
+        }
+
+        
     }
 
     const deleteStudent = async () => {
@@ -107,7 +85,7 @@ const ClassesList = () => {
             return;
         }
 
-        const response = await fetch("http://localhost:3010/delete-student", {
+        const response = await fetchWithAuth("/delete-student", {
             method: "DELETE",
             headers:{
                 "Content-Type": "application/json"
@@ -115,17 +93,23 @@ const ClassesList = () => {
             body: JSON.stringify({
                 selectedStudentId: activeStudentButtonId
             })
+
         });
+
+        if (!response) router.push("/auth");
+        else{
+            setActiveStudentButtonId(null);
+            getStudentsInClass(activeClassButtonId);
+        }
         
-        setActiveStudentButtonId(null);
-        getStudentsInClass(activeClassButtonId);
         
     }
 
     
 
     const getStudentsInClass = async (buttonId: number | null | undefined) => {
-        const response = await fetch("http://localhost:3010/get-students-in-class", {
+        
+        const response = await fetchWithAuth("/get-students-in-class", {
             method: "POST",
             headers:{
                 "Content-Type":"application/json"
@@ -135,11 +119,13 @@ const ClassesList = () => {
             })
         });
 
-        if (response.ok) {
-            const students = await response.json();
+        if (!response) router.push("/auth");
+        else{
+            const students = response;
 
             setStudents(students);
         }
+
         
     }
 
@@ -150,6 +136,7 @@ const ClassesList = () => {
         if (activeClassButtonId == buttonId){
             setActiveClassButtonId(null)
             getStudentsInClass(null);
+            setActiveStudentButtonId(null);
         } 
         else {
             setActiveClassButtonId(buttonId);
@@ -188,7 +175,7 @@ const ClassesList = () => {
 
         
 
-        const response = await fetch("http://localhost:3010/update-student", {
+        const response = await fetchWithAuth("/update-student", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -198,13 +185,9 @@ const ClassesList = () => {
             })
         });
 
-        if (response.ok){
-            getStudentsInClass(activeClassButtonId);
-        }
-
+        if (!response) router.push("/auth");
         else{
-            const responseJson = await response.json();
-            alert(responseJson.message);
+            getStudentsInClass(activeClassButtonId);
         }
 
     }
@@ -235,7 +218,7 @@ const ClassesList = () => {
 
 
     useEffect(() => {
-        if (classes.length == 0){
+        if (classes?.length == 0){
             getClasses();
         }
     }, [newClass, isAddClass, updatedClassName]);
@@ -261,7 +244,7 @@ const ClassesList = () => {
         {/* Список класов */}
         <div className={`${isAddClass || isEditClass || isAddStudent ? "pointer-events-none" : ""} flex h-full border-r-[3px] border-border-blocks justify-between items-center flex-col w-full`}> 
             <div className="mt-[45px] h-[75%] w-full flex flex-col small_buttons overflow-auto">
-                {classes.length !== 0 ? classes.map((classData) => {
+                {classes?.length !== 0 ? classes?.map((classData) => {
                     return (
                         <button 
                         onClick={() => setActiveClassButton(classData.id)} 
@@ -287,8 +270,8 @@ const ClassesList = () => {
         <div className={`${isAddStudent || isEditClass ? 'pointer-events-none' : ""} flex w-full h-full border-r-[3px] border-border-blocks flex-col small_buttons justify-between items-center`}>
             <div className="mt-[45px] h-[75%] w-full flex flex-col small_buttons overflow-auto">
 
-                {students.length !== 0 ? 
-                students.map((student) => (
+                {students?.length !== 0 ? 
+                students?.map((student) => (
                     <button className={`${activeStudentButtonId == student.id ? 'active-button' : ''} mb-[32px] flex-shrink-0 h-10 flex items-center pl-[15px] text-xl justify-start ml-5 mr-5`} 
                     key={student.id}
                     onClick={() => setActiveStudentButton(student.id)}>{student.full_name}</button>

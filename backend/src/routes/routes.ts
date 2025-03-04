@@ -93,31 +93,10 @@ router.post("/check-auth", (req: Request, res: Response): any => {
 
 });
 
-router.post("/get-classes", async (req: Request, res: Response): Promise<any> => {
+router.post("/get-classes", checkTokens, async (req: Request, res: Response): Promise<any> => {
     try {
-        const { authorization } = req.headers;
-        const accessToken = authorization?.split(" ")[1] as string;
-
-        if (accessToken == "null" || !accessToken) {
-            return res.status(401).json({ message: "Требуется авторизация" });
-        }
-
-        else {
-            const accessTokenSecret = process.env.JWT_ACCESS_SECRET as string;
-            jwt.verify(accessToken, accessTokenSecret, async (err) => {
-
-                if (err) {
-
-                    return res.status(403).json({ message: "Доступ запрещен" });
-                }
-
-                else {
-                    const classes = await db.getClasses();
-
-                    return res.status(200).json({ classes: classes });
-                }
-            });
-        }
+        const classes = await db.getClasses();
+        return res.status(200).json({ classes: classes });
     } catch (error) {
         console.log(`Ошибка получения классов: ${error}`);
     }
@@ -125,7 +104,7 @@ router.post("/get-classes", async (req: Request, res: Response): Promise<any> =>
 
 });
 
-router.post("/get-students-in-class", async (req: Request, res: Response): Promise<any> => {
+router.post("/get-students-in-class",checkTokens,  async (req: Request, res: Response): Promise<any> => {
     try {
         const selectedClassId = req.body.selectedClassId;
 
@@ -138,7 +117,7 @@ router.post("/get-students-in-class", async (req: Request, res: Response): Promi
 
 });
 
-router.post("/add-new-class", async (req: Request, res: Response): Promise<any> => {
+router.post("/add-new-class",checkTokens, async (req: Request, res: Response): Promise<any> => {
     try {
         const nameNewClass = req.body.name;
 
@@ -151,8 +130,9 @@ router.post("/add-new-class", async (req: Request, res: Response): Promise<any> 
 
 });
 
-router.delete("/delete-class", async (req: Request, res: Response): Promise<any> => {
+router.delete("/delete-class",checkTokens, async (req: Request, res: Response): Promise<any> => {
     try {
+        
         const idSelectedClass = req.body.selectedClassId;
 
         await db.deleteClass(idSelectedClass);
@@ -163,7 +143,7 @@ router.delete("/delete-class", async (req: Request, res: Response): Promise<any>
     }
 });
 
-router.post("/add-student-in-class", async (req: Request, res: Response): Promise<any> => {
+router.post("/add-student-in-class",checkTokens, async (req: Request, res: Response): Promise<any> => {
     try {
         let fullName = "";
         if (req.body.patronymic) fullName = `${req.body.surname} ${req.body.name} ${req.body.patronymic}`;
@@ -179,7 +159,7 @@ router.post("/add-student-in-class", async (req: Request, res: Response): Promis
     }
 });
 
-router.delete("/delete-student", async (req: Request, res: Response): Promise<any> => {
+router.delete("/delete-student",checkTokens, async (req: Request, res: Response): Promise<any> => {
     try {
         const { selectedStudentId } = req.body;
 
@@ -191,7 +171,7 @@ router.delete("/delete-student", async (req: Request, res: Response): Promise<an
     }
 });
 
-router.post("/update-student", async (req: Request, res: Response): Promise<any> => {
+router.post("/update-student",checkTokens, async (req: Request, res: Response): Promise<any> => {
     try {
         const { updatedStudent } = req.body;
 
@@ -208,7 +188,7 @@ router.post("/update-student", async (req: Request, res: Response): Promise<any>
     }
 });
 
-router.post("/update-classname", async (req: Request, res: Response): Promise<any> => {
+router.post("/update-classname",checkTokens, async (req: Request, res: Response): Promise<any> => {
     try {
         const { updatedClassName } = req.body;
         const { selectedClassId } = req.body;
@@ -220,28 +200,54 @@ router.post("/update-classname", async (req: Request, res: Response): Promise<an
     }
 });
 
-router.post("/add-new-lesson", async (req: Request, res: Response): Promise<any> => {
+router.post("/add-new-lesson",checkTokens, async (req: Request, res: Response): Promise<any> => {
     try {
-        const { newLessonName } = req.body;
-        const { selectedTime } = req.body;
-        const { selectedDate } = req.body;
-        const { idUser } = req.body;
+        const { newLessonName, selectedTime, className } = req.body;
+        const utcDate = new Date(req.body.selectedDate); // Преобразуем строку в объект Date
+        const localDate = new Date(utcDate.getTime() - utcDate.getTimezoneOffset() * 60000);
 
-        await db.addNewLesson(newLessonName, selectedTime, selectedDate, idUser);
+        
+       await db.addNewLesson(newLessonName, selectedTime, localDate, className);
+
+        return res.status(200).json({message: "Успешно"});
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ message: "Ошибка 500" });
+    }
+});
+
+router.post("/check-availability-class",checkTokens, async (req: Request, res: Response): Promise<any> => {
+    try {
+        const { className } = req.body;
+
+        console.log(className);
+        
+        const result = await db.checkAvailabilityClass(className);
+
+        if (result)  return res.status(200).json({ message: "Успешно" });
+        return res.status(501).json({ message: "Неуспешно" });
+
     } catch (error) {
         return res.status(500).json({ message: "Ошибка 500" });
     }
 });
 
-router.post("/check-availability-class", async (req: Request, res: Response): Promise<any> => {
+router.post("/get-lessons",checkTokens, async(req: Request, res: Response): Promise<any> => {
     try {
-        const { className } = req.body;
+        const {dates, scheduleClassName} = req.body;
 
-        const result = await db.checkAvailabilityClass(className);
+        for (let i = 0; i < dates.length; i++){
+            let utcDate = new Date(dates[i]);
+            dates[i] = new Date(utcDate.getTime() - utcDate.getTimezoneOffset() * 60000);
+        }
 
-        return res.status(result ? 200 : 500).json({ message: "Успешно" });
+        
+        const lessons = await db.getLessonsBetweenDates(dates, scheduleClassName);
+
+        return res.status(200).json({lessons});
     } catch (error) {
-        return res.status(500).json({ message: "Ошибка 500" });
+        console.log(`Ошибка получения уроков: ${error}`);
+        return res.sendStatus(500);
     }
 });
 

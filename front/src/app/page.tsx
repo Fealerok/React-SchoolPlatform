@@ -3,37 +3,37 @@ import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.share
 import { useRouter } from "next/navigation";
 import { useContext, useEffect } from "react";
 import { AuthContext } from "./_context/authContext";
-import checkAuth from "./_utils/checkAuth/checkAuth";
-import { getTokens, setTokens } from "./_utils/localStorage/localStorage";
+import { fetchWithAuth } from "./_utils/fetchWithAuth/fetchWithAuth";
+import { AsideContext } from "./_context/asideContext";
 
 export default function Home() {
 
   const router: AppRouterInstance = useRouter();
 
   const {user, setUser} = useContext(AuthContext);
-  useEffect(() => {
-    setTokensAndUser();
-
-  }, []);
-
-  const setTokensAndUser = () => {
-    const tokens = getTokens();
-    const checkResponse = checkAuth(tokens[0], tokens[1]);
-
-    checkResponse.then(async (resp) => {
-      console.log(resp);
-      if (resp.user){
-        await setUser(resp.user);
-        setTokens(resp.accessToken, resp.refreshToken);
-        router.push("/main");
-      }
-
-      else {
-        router.push("/auth");
-        setTokens(undefined, undefined);
-      }
-    });
-  }
+  const {asideType, setAsideType} = useContext(AsideContext);
+ useEffect(() => {
+         startFunction();
+ 
+     }, [])
+ 
+     const startFunction = async () => {
+         console.log(999);
+         const response = await fetchWithAuth("/check-auth", {
+             method: "POST"
+         });
+         if (!response?.user){
+             router.push("/auth");
+         }
+ 
+         else{
+             
+             await setUser(response.user);
+             console.log(response.user);
+             setAsideType("Главная");
+             router.push("/main");
+         }
+     }
 
   return (
     <div className="h-full">

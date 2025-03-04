@@ -24,29 +24,8 @@ const MainLayout = ({
     const router = useRouter();
 
     useEffect(() => {
-
-
         startFunction();
 
-
-        // const tokens = getTokens();
-        // const checkAuthResponse = checkAuth(tokens[0], tokens[1]);
-
-        // checkAuthResponse.then(async (resp) => {
-        //     if (resp.user){
-              
-        //       await setUser(resp.user);
-        //       console.log(resp.user)
-        //       setTokens(resp.accessToken, resp.refreshToken);
-        //       setAsideType("Главная");
-        //     }
-      
-        //     else {
-        //         router.push("/auth");
-        //         setTokens(undefined, undefined);
-        //     }
-        //   });
-        
     }, [])
 
     const startFunction = async () => {

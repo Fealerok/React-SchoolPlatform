@@ -39,6 +39,7 @@ export const fetchWithAuth = async (url: string, options: IFetchOptions = {}) =>
 
     const headers = {
         ...options.headers,
+
         Authorization: `Bearer ${accessToken}`
     }
 
@@ -49,12 +50,10 @@ export const fetchWithAuth = async (url: string, options: IFetchOptions = {}) =>
 
     let response = await fetch(`${baseUrl}${url}`, fetchOptions);
 
-    console.log(response.status);
     if (response.status == 401){
         accessToken = await updateAccessToken();
 
         if (!accessToken) return;
-        console.log(accessToken);
         headers.Authorization = `Bearer ${accessToken}`;
         fetchOptions.headers = headers;
         response = await fetch(`${baseUrl}${url}`, fetchOptions);     
@@ -62,11 +61,9 @@ export const fetchWithAuth = async (url: string, options: IFetchOptions = {}) =>
 
 
     if (!response.ok) {
-        console.log(555);
-        throw new Error(`Ошибка: ${response.statusText}`);
+        return response.json();
     }
 
-    console.log(666);
     return response.json();
 
 }

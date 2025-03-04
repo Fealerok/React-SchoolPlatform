@@ -308,11 +308,17 @@ class Database{
         }
     }
 
-    addNewLesson = async (newLessonName: string, selectedTime: string, selectedDate: Date, idUser: number) => {
+    addNewLesson = async (newLessonName: string, selectedTime: string, selectedDate: Date, className: string) => {
         try {
-            console.log(idUser);
-            await this.db.query(`INSERT INTO "Lessons"("name", "lesson_date", "lesson_start_time", "id_teacher")
-                VALUES ($1, $2, $3, $4)`, [newLessonName, selectedDate, selectedTime, idUser]);
+            const idClass = (await this.db.query(`SELECT id FROM "Classes" WHERE name=$1`, [className])).rows[0]?.id;
+
+            const lesson = (await this.db.query(`SELECT * FROM "Lessons" WHERE lesson_date=$1 AND lesson_start_time=$2 AND id_class=$3`, [selectedDate, selectedTime, idClass] )).rows;
+            
+            if (lesson.length == 0){
+                await this.db.query(`INSERT INTO "Lessons"("name", "lesson_date", "lesson_start_time", "id_class")
+                VALUES ($1, $2, $3, $4)`, [newLessonName, selectedDate, selectedTime, idClass]);
+            }
+
         } catch (error) {
             console.log(`Ошибка добавления урока в БД: ${error}`);
             
@@ -328,6 +334,22 @@ class Database{
             return true;
         } catch (error) {
             console.log(`Ошибка проверки наличия класса в бд: ${error}`);
+            
+        }
+    }
+
+    getLessonsBetweenDates = async (dates: Array<string>, scheduleClassName: string) => {
+        try {
+            const idClass = (await this.db.query(`SELECT id FROM "Classes" WHERE name=$1`, [scheduleClassName])).rows[0]?.id;
+
+
+
+            const lessons = (await this.db.query(`SELECT * FROM "Lessons"
+                                                WHERE "lesson_date" BETWEEN $1 AND $2 AND "id_class" = $3`, [dates[0], dates[1], idClass])).rows;
+            return lessons;
+            
+        } catch (error) {
+            console.log(`Ошибка получения уроков в БД: ${error}`);
             
         }
     }
