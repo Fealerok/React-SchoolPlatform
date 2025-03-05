@@ -46,8 +46,8 @@ const runSeeds = async () => {
 
 //Запускаем миграции и сиды, затем сервер
 const Main = async () => {
-    await runMigrations();
-    await runSeeds();
+    //await runMigrations();
+    //await runSeeds();
 
     await app.listen(port, () => {
         console.log(`Server is started on port: ${port}`);

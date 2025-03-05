@@ -4,6 +4,7 @@ import React, { useEffect, useState, useContext } from 'react'
 import Input from '@/app/_ui/Input/Input'
 import { getTokens } from '@/app/_utils/localStorage/localStorage'
 import { AuthContext } from '@/app/_context/authContext'
+import { fetchWithAuth } from '@/app/_utils/fetchWithAuth/fetchWithAuth'
 
 interface IAddClass{
     isAddClass: boolean, 
@@ -19,7 +20,7 @@ const AddClass = ({isAddClass, setIsAddClass, setNewClass} : IAddClass) => {
     const {user, setUser} = useContext(AuthContext);
 
     const addNewClass = async () => {
-        const response = await fetch("http://localhost:3010/add-new-class", {
+        const response = await fetchWithAuth("/add-new-class", {
             method: "POST",
             headers:{
                 "Content-Type": "application/json"

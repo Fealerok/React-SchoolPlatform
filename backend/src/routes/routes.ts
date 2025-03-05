@@ -26,7 +26,6 @@ declare module 'express' {
 router.post("/update-access", (req: Request, res: Response): any => {
     const { refreshToken } = req.body;
     const refreshTokenSecret = process.env.JWT_REFRESH_SECRET as string;
-
     if (!refreshToken) return res.sendStatus(403);
 
     jwt.verify(refreshToken, refreshTokenSecret, async (err: VerifyErrors | null, decoded_refresh: any) => {
@@ -89,8 +88,6 @@ router.post("/check-auth", (req: Request, res: Response): any => {
         });
     }
 
-    console.log(1234);
-
 });
 
 router.post("/get-classes", checkTokens, async (req: Request, res: Response): Promise<any> => {
@@ -121,6 +118,7 @@ router.post("/add-new-class",checkTokens, async (req: Request, res: Response): P
     try {
         const nameNewClass = req.body.name;
 
+        console.log(nameNewClass);
         await db.addNewClass(nameNewClass);
 
         return res.status(200).json({ message: "Успешно" });
@@ -238,16 +236,44 @@ router.post("/get-lessons",checkTokens, async(req: Request, res: Response): Prom
 
         for (let i = 0; i < dates.length; i++){
             let utcDate = new Date(dates[i]);
-            dates[i] = new Date(utcDate.getTime() - utcDate.getTimezoneOffset() * 60000);
+            dates[i] = new Date(utcDate.getTime() - utcDate.getTimezoneOffset() * 60000).toISOString().split("T")[0];
+            
         }
 
-        
         const lessons = await db.getLessonsBetweenDates(dates, scheduleClassName);
 
         return res.status(200).json({lessons});
     } catch (error) {
         console.log(`Ошибка получения уроков: ${error}`);
         return res.sendStatus(500);
+    }
+});
+
+router.post("/get-lesson-information", checkTokens, async(req: Request, res: Response): Promise<any> => {
+    try {
+        const {idLesson} = req.body;
+
+        const lessonInformation = await db.getLessonInformation(idLesson);
+
+        return res.status(200).json({lessonInformation});
+    } catch (error) {
+        console.log(`Ошибка получения информации о уроке на сервере: ${error}`);
+        return res.sendStatus(500);
+    }
+});
+
+router.post("/update-lesson", checkTokens, async (req: Request, res: Response): Promise<any> => {
+    try {
+        const {lessonInformation} = req.body;
+
+        console.log(lessonInformation)
+        await db.updateLesson(lessonInformation);
+        return res.sendStatus(200);
+    } catch (error) {
+        console.log(`Ошибка обновления данных урока на сервере: ${error}`);
+
+        return res.sendStatus(500);
+        
     }
 });
 

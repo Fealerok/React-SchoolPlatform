@@ -19,6 +19,7 @@ const AsideContent = ({
     const {asideType} = useContext(AsideContext);
     const {setScheduleClassName} = useContext(ScheduleContext);
     const [classes, setClasses] = useState<Array<{id: number, name: string}>>([])
+    const [selectedClass, setSelectedClass] = useState("Выбор класса");
 
     const router = useRouter();
     const selectRef = useRef<HTMLSelectElement>(null);
@@ -41,6 +42,7 @@ const AsideContent = ({
         if (selectRef.current){
             const value = selectRef.current.value;
             setScheduleClassName(value);
+            setSelectedClass(value);
         }
     }
 
@@ -54,7 +56,12 @@ const AsideContent = ({
                     <AsideButton buttonText='Учителя'/> 
 
                     {asideType == "Главная" || asideType == "Расписание классы" ? (
-                        <select ref={selectRef} onChange={changeScheduleClassName} className=' transition-colors duration-150 border-2 border-border-blocks mr-5 ml-5 rounded-[6px] h-10 text-left pl-[15px] outline-none text-2xl'>
+                        <select
+                            ref={selectRef}
+                            onChange={changeScheduleClassName}
+                            className='transition-colors duration-150 border-2 border-border-blocks mr-5 ml-5 rounded-[6px] h-10 text-left pl-[15px] outline-none text-2xl'
+                            value={selectedClass}
+                        >
                             <option disabled>Выбор класса</option>
                             {classes.map(classItem => (
                                 <option key={classItem.id} value={classItem.name}>{classItem.name}</option>

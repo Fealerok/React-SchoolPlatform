@@ -232,7 +232,7 @@ const ClassesList = () => {
 
     useEffect(() => {
         getClasses();
-    }, []);
+    }, [isAddClass, isEditClass]);
 
   return (
     <div className='flex justify-between w-full h-full border'>

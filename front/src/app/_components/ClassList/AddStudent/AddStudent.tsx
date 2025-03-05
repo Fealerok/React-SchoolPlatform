@@ -2,6 +2,7 @@
 
 import React, { useEffect, useReducer, useState } from 'react'
 import Input from '@/app/_ui/Input/Input'
+import { fetchWithAuth } from '@/app/_utils/fetchWithAuth/fetchWithAuth'
 
 
 interface IAddStudent{
@@ -28,7 +29,7 @@ const AddStudent = ({
             return;
         }
 
-        const response = await fetch("http://localhost:3010/add-student-in-class", {
+        const response = await fetchWithAuth("/add-student-in-class", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

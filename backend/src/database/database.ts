@@ -345,11 +345,69 @@ class Database{
 
 
             const lessons = (await this.db.query(`SELECT * FROM "Lessons"
-                                                WHERE "lesson_date" BETWEEN $1 AND $2 AND "id_class" = $3`, [dates[0], dates[1], idClass])).rows;
+                                                WHERE "lesson_date" BETWEEN $1 AND $2 AND "id_class" = $3`, [dates[0], dates[dates.length-1], idClass])).rows;
+
+                
             return lessons;
             
         } catch (error) {
             console.log(`Ошибка получения уроков в БД: ${error}`);
+            
+        }
+    }
+
+    getLessonInformation = async (idLesson: number) => {
+        try {
+            const lesson = (await this.db.query(`SELECT * FROM "Lessons" WHERE id=$1`, [idLesson])).rows[0];
+
+            const className = (await this.db.query(`SELECT name FROM "Classes" WHERE id=$1`, [lesson.id_class])).rows[0].name;
+
+            let utcDate = new Date(lesson.lesson_date);
+            const date = new Date(utcDate.getTime() - utcDate.getTimezoneOffset() * 60000).toISOString().split("T")[0];
+
+            const time = String(lesson.lesson_start_time).slice(0, -3);
+            
+            const lessonInformation = {
+                id: lesson.id,
+                name: lesson.name,
+                lesson_date: date,
+                lesson_start_time: time,
+                className: className
+            }
+
+            return lessonInformation;
+            
+        } catch (error) {
+            console.log(`Ошибка получения информации об уроке в БД: ${error}`);
+            
+        }
+    }
+
+    updateLesson = async (lessonInformation: {
+        lessonId: number,
+        name: string,
+        time: string,
+        className: string
+    }) => {
+        try {
+
+            const classId = (await this.db.query(`SELECT id FROM "Classes" WHERE name=$1`, [lessonInformation.className])).rows[0].id;
+            const lessonDate = (await this.db.query(`SELECT lesson_date FROM "Lessons" WHERE id=$1`, [lessonInformation.lessonId])).rows[0].lesson_date;
+
+            let utcDate = new Date(lessonDate);
+            const date = new Date(utcDate.getTime() - utcDate.getTimezoneOffset() * 60000).toISOString().split("T")[0];
+
+            
+            const lesson = (await this.db.query(`SELECT * FROM "Lessons" WHERE lesson_date=$1 AND lesson_start_time=$2`, [date, lessonInformation.time])).rows;
+
+            if (lesson.length == 0 || (lesson.length == 1 && lesson[0].id == lessonInformation.lessonId)){
+                await this.db.query(`UPDATE "Lessons" SET name=$1, lesson_start_time=$2, id_class=$3 WHERE id=$4`, [lessonInformation.name, lessonInformation.time, classId, lessonInformation.lessonId]);
+            }
+
+            
+            
+        } catch (error) {
+            console.log(`Ошибка обновления урока в БД: ${error}`);
             
         }
     }

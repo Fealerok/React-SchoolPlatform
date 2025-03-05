@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import Input from '@/app/_ui/Input/Input'
+import { fetchWithAuth } from '@/app/_utils/fetchWithAuth/fetchWithAuth';
 
 
 interface IEditClass{
@@ -17,7 +18,7 @@ const EditClass = ({isEditClass, setIsEditClass, setClassName, selectedClassId} 
     const saveClassName = async () => {
         console.log(selectedClassId);
 
-        const response = await fetch("http://localhost:3010/update-classname", {
+        const response = await fetchWithAuth("/update-classname", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -29,10 +30,8 @@ const EditClass = ({isEditClass, setIsEditClass, setClassName, selectedClassId} 
             })
         });
 
-        if (response.ok) {
-            setClassName(updatedClassName);
-            setIsEditClass(false);
-        }
+        setClassName(updatedClassName);
+        setIsEditClass(false);
     }
   return (
     <div className={`${isEditClass ? "block" : 'hidden'} flex flex-col items-center border-[3px] border-border-blocks absolute top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] right-0 bottom-0 w-[30%] h-[40%] bg-additional-bg`}>

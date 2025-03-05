@@ -5,9 +5,13 @@ import { ScheduleContext } from '@/app/_context/scheduleContext';
 import AddNewLesson from './AddNewLesson/AddNewLesson';
 import { fetchWithAuth } from '@/app/_utils/fetchWithAuth/fetchWithAuth';
 import { useRouter } from 'next/navigation';
+import LessonInformation from './LessonInformation/LessonInformation';
 
 const Schedule = () => {
     const [isAddNewLesson, setIsAddNewLesson] = useState(false);
+    const [isLessonInformation, setIsLessonInformation] = useState(false);
+
+    const [selectedLessonId, setSelectedLessonId] = useState<null | number>(null);
     const [selectedTime, setSelectedTime] = useState<string>();
     const [selectedDateString, setSelectedDateString] = useState<string>();
     const [selectedDate, setSelectedDate] = useState<Date>();
@@ -31,8 +35,11 @@ const Schedule = () => {
 
     const daysOfWeek = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
 
-    const cellClickHandle = (timeIndex: number, dayIndex: number) => {
-        if (dates.length != 0) setIsAddNewLesson(true);
+    const cellClickHandle = (event: React.MouseEvent<HTMLTableCellElement>, timeIndex: number, dayIndex: number) => {
+
+        const tdChildren = event.currentTarget.children;
+
+        if (dates.length != 0 && tdChildren.length == 0) setIsAddNewLesson(true);
         else return;
 
         setSelectedTime(times[timeIndex]);
@@ -42,6 +49,13 @@ const Schedule = () => {
         const result = `${dayOfMonth} ${dayOfWeek}`;
         setSelectedDateString(result);
         setSelectedDate(dates[dayIndex]);
+    }
+
+    const divLessonCliCkHandle = (event: React.MouseEvent<HTMLElement>) => {
+        const lessonId = Number(event.currentTarget.getAttribute("data-key"));
+        setIsLessonInformation(true);
+        setSelectedLessonId(lessonId);
+        
     }
 
     useEffect(() => {
@@ -76,6 +90,32 @@ const Schedule = () => {
 
         updateSchedule();
     }, [dates]);
+    
+    useEffect(() => {
+        if (!isLessonInformation) updateSchedule();
+    }, [isLessonInformation]);
+
+    const getLessonStatus = (lessonDate: Date, lessonTime: string) => {
+        const now = new Date(); // Текущее время
+    
+        // Создаем объект Date для времени начала урока
+        const lessonStartDateTime = new Date(lessonDate);
+        const [hours, minutes] = lessonTime.split(':').map(Number);
+        lessonStartDateTime.setHours(hours, minutes, 0, 0); // Устанавливаем время начала урока
+    
+        // Рассчитываем время окончания урока (40 минут после начала)
+        const lessonEndDateTime = new Date(lessonStartDateTime);
+        lessonEndDateTime.setMinutes(lessonEndDateTime.getMinutes() + 40);
+    
+        // Определяем статус урока
+        if (now < lessonStartDateTime) {
+            return 'не начался'; // Урок еще не начался
+        } else if (now >= lessonStartDateTime && now <= lessonEndDateTime) {
+            return 'в процессе'; // Урок идет прямо сейчас
+        } else {
+            return 'закончен'; // Урок уже прошел
+        }
+    };
 
     return (
         <div className={`w-full h-full`}>
@@ -86,7 +126,13 @@ const Schedule = () => {
             selectedDateString={selectedDateString}
             selectedDate={selectedDate}></AddNewLesson>
 
-            <table className={`${isAddNewLesson ? "pointer-events-none" : ""} w-full h-full table-fixed`}>
+            <LessonInformation 
+            isLessonInformation={isLessonInformation}
+            setIsLessonInformation={setIsLessonInformation}
+            selectedLessonId={selectedLessonId}
+             ></LessonInformation>
+
+            <table className={`${isAddNewLesson || isLessonInformation ? "pointer-events-none" : ""} w-full h-full table-fixed`}>
                 <tbody>
                     <tr>
                         <th className='w-[100px]'></th>
@@ -118,10 +164,18 @@ const Schedule = () => {
                                 });
 
                                 return (
-                                    <td  key={`${timeIndex}-${dateIndex}`} onClick={() => cellClickHandle(timeIndex, dateIndex)}>
-                                        {lessonsForCell.map(lesson => (
-                                            <div className={`bg-blue-500 flex items-center justify-center text-black rounded-[10px] w-[calc(100%-10px)] h-[calc(100%-10px)] m-auto `} key={lesson.id}>{lesson.name}</div>
-                                        ))}
+                                    <td  key={`${timeIndex}-${dateIndex}`} onClick={(event) => cellClickHandle(event, timeIndex, dateIndex)}>
+                                        {lessonsForCell.map(lesson => {
+
+                                            const lessonStatus = getLessonStatus(lesson.lesson_date, lesson.lesson_start_time);
+                                            return(
+                                                <div className={`${lessonStatus != "закончен" ? "bg-blue-600 text-white" : "bg-blue-200"} flex items-center justify-center text-black rounded-[10px] w-[calc(100%-10px)] h-[calc(100%-10px)] m-auto `} 
+                                                key={lesson.id}
+                                                onClick={(event) => divLessonCliCkHandle(event)}
+                                                data-key={lesson.id}>{lesson.name}</div>
+                                            )
+                                            
+                                        })}
                                     </td>
                                 );
                             })}

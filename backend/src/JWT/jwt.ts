@@ -16,7 +16,7 @@ class JWTMethods{
     } : IUserData) => {
         const accessSecret = process.env.JWT_ACCESS_SECRET;
         const accessToken = jwt.sign({id, login, role, fullName}, accessSecret, {
-            expiresIn: "30m"
+            expiresIn: "1m"
         });
 
         return accessToken;
