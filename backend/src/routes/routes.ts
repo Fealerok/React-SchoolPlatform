@@ -277,4 +277,43 @@ router.post("/update-lesson", checkTokens, async (req: Request, res: Response): 
     }
 });
 
+router.delete("/delete-lesson", checkTokens, async (req: Request, res: Response): Promise<any> => {
+    try {
+        const {idLesson} = req.body;
+        
+        await db.deleteLesson(idLesson);
+
+        console.log(2);
+        return res.status(200).json({message: "Успешно"});
+    } catch (error) {
+        console.log(`Ошибка удаления урока на сервере: ${error}`);
+        return res.status(500).json({message: "Успешно"});;
+    }
+});
+
+router.post("/get-class-user", async (req: Request, res: Response): Promise<any> => {
+    try {
+        const {idUser} = req.body; 
+        const userClass = await db.getClassUser(idUser);
+
+        return res.status(200).json({className: userClass});
+    } catch (error) {
+        console.log(`Ошибка получения класса ученика на сервере: ${error}`);
+        return res.sendStatus(500);
+    }
+});
+
+router.post("/get-user-class", async (req: Request, res: Response): Promise<any> => {
+    try {
+        const {idUser} = req.body;
+
+        const userClass = await db.getUserClass(idUser);
+
+        return res.status(200).json({userClass});
+    } catch (error) {
+        console.log(`Ошибка получения информации профиля на сервере: ${error}`);
+        return res.sendStatus(500);
+    }
+});
+
 module.exports = router;

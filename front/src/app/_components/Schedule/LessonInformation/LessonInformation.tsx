@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import Input from '@/app/_ui/Input/Input'
 import { fetchWithAuth } from '@/app/_utils/fetchWithAuth/fetchWithAuth'
 import { useRouter } from 'next/navigation'
+import { AuthContext } from '@/app/_context/authContext'
 
 
 interface ILessonInformation{
@@ -44,6 +45,8 @@ const LessonInformation = ({
     const [selectedTime, setSelectedTime] = useState("09:00");
 
     const inputRef = useRef<HTMLInputElement>(null);
+
+    const {user} = useContext(AuthContext);
 
     const router = useRouter();
 
@@ -147,10 +150,33 @@ const LessonInformation = ({
         }
     }
 
+    const onDeleteLesson = async () => {
+        const response = await fetchWithAuth("/delete-lesson", {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                idLesson: selectedLessonId
+            })
+        });
+
+        console.log(response);
+        if (!response) {
+            router.push("/auth");
+            location.reload()
+        }
+        else{
+            console.log(5454);
+            await setIsLessonInformation(false);
+        }
+    }
+
     useEffect(() => {
         console.log(isLessonInformation)
         //Если окно открыто, то получаем информацию урока по его Id
-        getLessonInformation();
+
+        if (isLessonInformation) getLessonInformation();
     }, [isLessonInformation]);
 
 
@@ -199,38 +225,43 @@ const LessonInformation = ({
                         
                     </div>
                     <div className="w-full flex justify-between gap-[40px]">
-                          {isEdit ?
-                              <select
-                                  className='w-full'
-                                  value={selectedClass}
-                                  onChange={(event) => onClassSelectChange(event)}>
-                                  <option disabled selected>Класс</option>
-
-                                  {classesArray.map(classItem => (
-                                    <option key={classItem.id}>{classItem.name}</option>
-                                  ))}
-                              </select> :
-                              <p>Класс: {lessonInformation.className}</p>
-                          }
+                        {isEdit ? (
+                            <select
+                                className='w-full'
+                                value={selectedClass}
+                                onChange={(event) => onClassSelectChange(event)}
+                            >
+                                <option disabled value="Класс">Класс</option>
+                                {classesArray.map(classItem => (
+                                    <option key={classItem.id} value={classItem.name}>
+                                        {classItem.name}
+                                    </option>
+                                ))}
+                            </select>
+                        ) : (
+                            <p>Класс: {lessonInformation.className}</p>
+                        )}
         
                           {isEdit ?
                               <select
                                   className='w-full'
                                   value={selectedTeacher}
                                   onChange={() => onTeacherSelectChange()}>
-                                  <option disabled selected>Учитель</option>
+                                  <option disabled>Учитель</option>
                               </select> :
                               <p>Учитель: </p>
                           }
                     </div>
                 </div>
                 <div className="w-1/2 flex flex-col items-end justify-between p-[40px]">
-                    <div className="flex items-end flex-col  gap-[20px] w-full">
+                    <div className={`${user?.role == "Ученик" || user?.role == "Учитель" ? "justify-center" : ""} flex items-end h-full  flex-col gap-[20px] w-full`}>
                           <button 
                           onClick={() => onEditCickHandle()}
-                          className='w-[90%] transition-colors duration-150 hover:bg-button-bg hover:text-white border-[2px] border-border-blocks rounded-[6px] h-[40px]'>{isEdit ? "Сохранить" : "Редактировать"}</button>
-                          <button className='w-[90%] transition-colors duration-150 hover:bg-button-bg hover:text-white border-[2px] border-border-blocks rounded-[6px] h-[40px]'>Удалить</button>
-                          <button className='w-[90%] transition-colors duration-150 hover:bg-button-bg hover:text-white bg-button-bg border-[2px] border-border-blocks rounded-[6px] h-[40px] text-white'>Присоединиться</button>
+                          className={`${user?.role == "Ученик" || user?.role == "Учитель" ? "hidden" : "block"} w-[90%] transition-colors duration-150 hover:bg-button-bg hover:text-white border-[2px] border-border-blocks rounded-[6px] h-[40px]`}>{isEdit ? "Сохранить" : "Редактировать"}</button>
+                          <button 
+                          onClick={() => onDeleteLesson()}
+                          className={`${user?.role == "Ученик" || user?.role == "Учитель" ? "hidden" : "block"} w-[90%] transition-colors duration-150 hover:bg-button-bg hover:text-white border-[2px] border-border-blocks rounded-[6px] h-[40px]`}>Удалить</button>
+                          <button className={`w-[90%] transition-colors duration-150 hover:bg-button-bg hover:text-white bg-button-bg border-[2px] border-border-blocks rounded-[6px] h-[40px] text-white`}>Присоединиться</button>
                     </div>
                     
                     <button 

@@ -32,11 +32,38 @@ const AsideContent = ({
            else{
             setClasses(response.classes);
            }
+    }
+
+    const getClassUser = async () => {
+        const response = await fetchWithAuth("/get-class-user", {
+            method: "POST",
+            headers:  {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                idUser: user?.id
+            })
+        });
+
+        if (!response) {
+            router.push("/auth");
+            location.reload();
+            return;
         }
 
+        setSelectedClass(response.className);
+        setScheduleClassName(response.className);
+    }
+
     useEffect(() => {
-        getClasses();
+        if (user?.role != "Ученик") getClasses();
+        else getClassUser();
     }, [asideType]);
+
+    useEffect(() => {
+        if (user?.role != "Ученик") getClasses();
+        else getClassUser();
+    }, [user]);
 
     const changeScheduleClassName = () => {
         if (selectRef.current){
@@ -61,6 +88,7 @@ const AsideContent = ({
                             onChange={changeScheduleClassName}
                             className='transition-colors duration-150 border-2 border-border-blocks mr-5 ml-5 rounded-[6px] h-10 text-left pl-[15px] outline-none text-2xl'
                             value={selectedClass}
+                            
                         >
                             <option disabled>Выбор класса</option>
                             {classes.map(classItem => (
@@ -83,6 +111,49 @@ const AsideContent = ({
             <>
                 <div className="flex flex-col w-full gap-8 mt-[45px]">
                     <AsideButton buttonText='Главная'/> 
+
+                    {asideType == "Главная" || asideType == "Расписание классы" ? (
+                        <select
+                            ref={selectRef}
+                            onChange={changeScheduleClassName}
+                            className='transition-colors duration-150 border-2 border-border-blocks mr-5 ml-5 rounded-[6px] h-10 text-left pl-[15px] outline-none text-2xl'
+                            value={selectedClass}
+                            
+                        >
+                            <option disabled>Выбор класса</option>
+                            {classes.map(classItem => (
+                                <option key={classItem.id} value={classItem.name}>{classItem.name}</option>
+                            ))}
+                        </select>
+                    ) : null}
+                </div>
+                    
+                <div className={`${asideType == "Главная" ? "block" : "hidden"} w-[280px] h-[300px] rounded-6 border-[3px] border-border-blocks mt-auto mb-auto`}>
+                    <Calendar />
+                </div>
+            </>
+        )
+    }
+
+    else if (user?.role == "Ученик"){
+        return (
+            <>
+                <div className="flex flex-col w-full gap-8 mt-[45px]">
+                    <AsideButton buttonText='Главная'/> 
+
+                    {asideType == "Главная" || asideType == "Расписание классы" ? (
+                        <select
+                            ref={selectRef}
+                            onChange={changeScheduleClassName}
+                            className='transition-colors duration-150 border-2 border-border-blocks mr-5 ml-5 rounded-[6px] h-10 text-left pl-[15px] outline-none text-2xl'
+                            value={selectedClass}
+                            disabled
+                            
+                        >
+                            <option disabled>{selectedClass}</option>
+                            
+                        </select>
+                    ) : null}
                 </div>
                     
                 <div className={`${asideType == "Главная" ? "block" : "hidden"} w-[280px] h-[300px] rounded-6 border-[3px] border-border-blocks mt-auto mb-auto`}>

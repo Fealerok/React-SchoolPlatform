@@ -3,6 +3,7 @@
 import React, { useEffect, useReducer, useState } from 'react'
 import Input from '@/app/_ui/Input/Input'
 import { fetchWithAuth } from '@/app/_utils/fetchWithAuth/fetchWithAuth'
+import { useRouter } from 'next/navigation'
 
 
 interface IAddStudent{
@@ -22,6 +23,7 @@ const AddStudent = ({
     const [name, setName] = useState<string>();
     const [surname, setSurname] = useState<string>();
     const [patronymic, setPatronymic] = useState<string | undefined>();
+    const router = useRouter();
 
     const addStudentHandle = async () => {
         if (!name || !surname){
@@ -42,7 +44,12 @@ const AddStudent = ({
             })
         });
 
-        if (response.ok){
+        if (!response){
+            router.push("/auth");
+            location.reload();
+        }
+
+        else{
             setIsAddStudent(false);
             setNewStudent(`${surname} ${name} ${patronymic}`);
         }

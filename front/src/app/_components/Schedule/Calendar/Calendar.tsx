@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Image from 'next/image';
 import arrow from "../../../../../public/calendar_arrow.png";
 import 'tailwindcss/tailwind.css';
@@ -20,7 +20,7 @@ const getFirstDayOfMonth = (year: number, month: number): number => {
 };
 
 const Calendar: React.FC = () => {
-  const {setDates} = useContext(ScheduleContext);
+  const {dates, setDates} = useContext(ScheduleContext);
   const [year, setYear] = useState<number>(new Date().getFullYear());
   const [month, setMonth] = useState<number>(new Date().getMonth());
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
@@ -44,7 +44,6 @@ const Calendar: React.FC = () => {
     setSelectedWeek(weekIndex);
     setDates(dates);
 
-    console.log(dates);
   };
 
   const renderDays = () => {
@@ -86,6 +85,7 @@ const Calendar: React.FC = () => {
       setMonth(month + 1);
     }
   };
+
 
   return (
     <div className="w-[280px] h-[280px] p-2">

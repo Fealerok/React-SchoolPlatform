@@ -6,8 +6,11 @@ import AddNewLesson from './AddNewLesson/AddNewLesson';
 import { fetchWithAuth } from '@/app/_utils/fetchWithAuth/fetchWithAuth';
 import { useRouter } from 'next/navigation';
 import LessonInformation from './LessonInformation/LessonInformation';
+import { AsideContext } from '@/app/_context/asideContext';
 
 const Schedule = () => {
+    const {asideType} = useContext(AsideContext);
+    
     const [isAddNewLesson, setIsAddNewLesson] = useState(false);
     const [isLessonInformation, setIsLessonInformation] = useState(false);
 
@@ -37,18 +40,21 @@ const Schedule = () => {
 
     const cellClickHandle = (event: React.MouseEvent<HTMLTableCellElement>, timeIndex: number, dayIndex: number) => {
 
-        const tdChildren = event.currentTarget.children;
+        if (asideType != "Главная"){
+            const tdChildren = event.currentTarget.children;
 
-        if (dates.length != 0 && tdChildren.length == 0) setIsAddNewLesson(true);
-        else return;
-
-        setSelectedTime(times[timeIndex]);
-
-        const dayOfWeek = daysOfWeek[dates[dayIndex].getDay()];
-        const dayOfMonth = dates[dayIndex].getDate();
-        const result = `${dayOfMonth} ${dayOfWeek}`;
-        setSelectedDateString(result);
-        setSelectedDate(dates[dayIndex]);
+            if (dates.length != 0 && tdChildren.length == 0) setIsAddNewLesson(true);
+            else return;
+    
+            setSelectedTime(times[timeIndex]);
+    
+            const dayOfWeek = daysOfWeek[dates[dayIndex].getDay()];
+            const dayOfMonth = dates[dayIndex].getDate();
+            const result = `${dayOfMonth} ${dayOfWeek}`;
+            setSelectedDateString(result);
+            setSelectedDate(dates[dayIndex]);
+        }
+        
     }
 
     const divLessonCliCkHandle = (event: React.MouseEvent<HTMLElement>) => {
@@ -87,12 +93,12 @@ const Schedule = () => {
     }, [scheduleClassName]);
 
     useEffect(() => {
-
         updateSchedule();
     }, [dates]);
     
     useEffect(() => {
-        if (!isLessonInformation) updateSchedule();
+        updateSchedule();
+        console.log(555);
     }, [isLessonInformation]);
 
     const getLessonStatus = (lessonDate: Date, lessonTime: string) => {
@@ -118,7 +124,7 @@ const Schedule = () => {
     };
 
     return (
-        <div className={`w-full h-full`}>
+        <div className={`w-full h-full relative`}>
             <AddNewLesson 
             isAddNewLesson={isAddNewLesson}
             setIsAddNewLesson={setIsAddNewLesson}

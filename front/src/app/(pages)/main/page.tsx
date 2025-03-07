@@ -14,7 +14,7 @@ const page = () => {
   }
 
   else if (asideType == "Главная"){
-    return(<></>)
+    return(<Schedule /> )
   }
 
   else if (asideType == "Расписание классы"){

@@ -78,7 +78,6 @@ const AddNewLesson = ({
 
     if (!response) router.push("/auth");
     else{
-      console.log(response);
       //if (response.status == 500) return false;
          if (response.message == "Успешно") return true;
         else return false;
@@ -86,10 +85,6 @@ const AddNewLesson = ({
 
 
   }
-
-  useEffect(() => {
-    console.log(selectedDate);
-  }, [selectedDate]);
 
 
   return (

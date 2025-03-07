@@ -411,6 +411,44 @@ class Database{
             
         }
     }
+
+    deleteLesson = async (idLesson: number) => {
+        try {
+            console.log(3);
+            await this.db.query(`DELETE FROM "Lessons" WHERE id=$1`, [idLesson]);
+            console.log(4);
+        } catch (error) {
+            console.log(`Ошибка удаления урока в БД: ${error}`);
+            
+        }
+    }
+
+    getClassUser = async (idUser: number) => {
+        try {
+            const idClass = (await this.db.query(`SELECT id_class FROM "Users" WHERE id=$1`, [idUser])).rows[0].id_class;
+            const className = (await this.db.query(`SELECT name FROM "Classes" WHERE id=$1`, [idClass])).rows[0].name;
+
+            return className;
+        } catch (error) {
+            console.log(`Ошибка получения класса ученика в БД: ${error}`);
+            
+        }
+    }
+
+    getUserClass = async (idUser: number) => {
+        try {
+            
+            const idClass = (await this.db.query(`SELECT id_class FROM "Users" WHERE id=$1`, [idUser])).rows[0].id_class;
+
+            const className = (await this.db.query(`SELECT name FROM "Classes" WHERE id=$1`, [idClass])).rows[0].name;
+            
+            return className;
+            
+        } catch (error) {
+            console.log(`Ошибка получения класса профиля в БД: ${error}`);
+            
+        }
+    } 
 }
 
 module.exports = new Database();

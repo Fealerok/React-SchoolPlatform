@@ -10,6 +10,7 @@ import EditClass from './EditClass/EditClass';
 import { useRouter } from 'next/navigation';
 import updateAccessToken from '@/app/_utils/checkAuth/updateAccessToken';
 import { fetchWithAuth } from '@/app/_utils/fetchWithAuth/fetchWithAuth';
+import { log } from 'console';
 
 interface IStudents{
     id: number,
@@ -109,6 +110,7 @@ const ClassesList = () => {
 
     const getStudentsInClass = async (buttonId: number | null | undefined) => {
         
+        
         const response = await fetchWithAuth("/get-students-in-class", {
             method: "POST",
             headers:{
@@ -130,9 +132,7 @@ const ClassesList = () => {
     }
 
     const setActiveClassButton = (buttonId: number) => {
-        const tokens = getTokens();
         
-
         if (activeClassButtonId == buttonId){
             setActiveClassButtonId(null)
             getStudentsInClass(null);
@@ -146,20 +146,14 @@ const ClassesList = () => {
     }
 
     const setActiveStudentButton = (buttonId: number) => {
-
+        
+        setPasswordReg("");
         if (activeStudentButtonId == buttonId) setActiveStudentButtonId(null)
         else {
             setActiveStudentButtonId(buttonId);
             setSelectedStudent(students.filter(student => student.id == buttonId)[0]);
         }
 
-        // Обновляем состояния
-        setClassReg("");
-        setSurnameReg("");
-        setNameReg("");
-        setPatronymicReg("");
-        setLoginReg("");
-        setPasswordReg(""); // Пароль не подставляем, так как он не должен отображаться
     }
 
     const saveChangesStudent = async () => {
@@ -211,9 +205,9 @@ const ClassesList = () => {
             setNameReg(name || "");
             setPatronymicReg(patronymic || "");
             setLoginReg(selectedStudent.login || "");
-            setPasswordReg(""); // Пароль не подставляем, так как он не должен отображаться
+            setPasswordReg(""); // Сбрасываем пароль при переключении студента
         }
-    }, [selectedStudent]);
+    }, [activeStudentButtonId]);
 
 
 
@@ -224,15 +218,18 @@ const ClassesList = () => {
     }, [newClass, isAddClass, updatedClassName]);
 
     useEffect(() => {
-        if (newStudent){
-            getStudentsInClass(activeClassButtonId);
-        }
+        getStudentsInClass(activeClassButtonId);
         
-    }, [newStudent]);
+    }, [newStudent, isAddStudent]);
 
     useEffect(() => {
         getClasses();
     }, [isAddClass, isEditClass]);
+
+    useEffect(() => {
+        console.log(passwordReg);
+    }, [passwordReg]);
+
 
   return (
     <div className='flex justify-between w-full h-full border'>
@@ -319,7 +316,7 @@ const ClassesList = () => {
 
                 <form className='flex items-center justify-between'>
                     <span>Пароль: </span>
-                    <Input type={"Текст"} initialText={""} setInputValue={setPasswordReg} inputPlaceholder='Пароль' isLabel={false} />
+                    <Input type={"Текст"} initialText={passwordReg} setInputValue={setPasswordReg} inputPlaceholder='Пароль' isLabel={false} />
                 </form>
             </div>
 
