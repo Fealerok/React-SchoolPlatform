@@ -367,12 +367,15 @@ class Database{
 
             const time = String(lesson.lesson_start_time).slice(0, -3);
             
+            const teacherNameRows = (await this.db.query(`SELECT full_name FROM "Users" WHERE id=$1`, [lesson.id_teacher])).rows;
+
             const lessonInformation = {
                 id: lesson.id,
                 name: lesson.name,
                 lesson_date: date,
                 lesson_start_time: time,
-                className: className
+                className: className,
+                teacher: teacherNameRows.length != 0 ? teacherNameRows[0].full_name : ""
             }
 
             return lessonInformation;
@@ -387,7 +390,8 @@ class Database{
         lessonId: number,
         name: string,
         time: string,
-        className: string
+        className: string,
+        teacher: string
     }) => {
         try {
 
@@ -397,11 +401,12 @@ class Database{
             let utcDate = new Date(lessonDate);
             const date = new Date(utcDate.getTime() - utcDate.getTimezoneOffset() * 60000).toISOString().split("T")[0];
 
+            const idTeacher = (await this.db.query(`SELECT id FROM "Users" WHERE full_name=$1`, [lessonInformation.teacher])).rows[0].id;
             
             const lesson = (await this.db.query(`SELECT * FROM "Lessons" WHERE lesson_date=$1 AND lesson_start_time=$2`, [date, lessonInformation.time])).rows;
 
             if (lesson.length == 0 || (lesson.length == 1 && lesson[0].id == lessonInformation.lessonId)){
-                await this.db.query(`UPDATE "Lessons" SET name=$1, lesson_start_time=$2, id_class=$3 WHERE id=$4`, [lessonInformation.name, lessonInformation.time, classId, lessonInformation.lessonId]);
+                await this.db.query(`UPDATE "Lessons" SET name=$1, lesson_start_time=$2, id_class=$3, id_teacher=$4 WHERE id=$5`, [lessonInformation.name, lessonInformation.time, classId, idTeacher, lessonInformation.lessonId]);
             }
 
             
@@ -449,6 +454,79 @@ class Database{
             
         }
     } 
+
+    getTeachers = async () => {
+        try {
+            const teacherId = (await this.db.query(`SELECT id FROM "Roles" WHERE name='Учитель'`)).rows[0].id;
+            const resultWithUsersData = (await this.db.query(`SELECT "Users".id, full_name, "UsersData".login FROM "Users" LEFT JOIN "UsersData" ON "Users".id_usersdata = "UsersData".id WHERE "Users".id_role=$1`,[teacherId])).rows;
+
+            console.log(resultWithUsersData);
+            return resultWithUsersData;
+        } catch (error) {
+            console.log(`Ошибка получения учителей в БД: ${error}`);
+            
+        }
+    }
+
+    addTeacher = async (surname: string, name: string, patronymic: string) => {
+        try {
+            const idRole = (await this.db.query(`SELECT id FROM "Roles" WHERE name='Учитель'`)).rows[0].id;
+
+            const fullName = `${surname} ${name} ${patronymic}`;
+            await this.db.query(`INSERT INTO "Users" ("full_name", "id_role") VALUES ($1, $2)`, [fullName, idRole]);
+        } catch (error) {
+            console.log(`Ошибка добавления учителя в БД: ${error}`);
+            
+        }
+    }
+
+    deleteTeacher = async (idTeacher: number) => {
+        try {
+            await this.db.query(`DELETE FROM "Users" WHERE id=$1`, [idTeacher]);
+        } catch (error) {
+            console.log(`Ошибка добавления учителя в БД: ${error}`);
+            
+        }
+    }
+
+    updateTeacher = async (idTeacher: number, fullName: string, login: string, password: string) => {
+        try {
+            
+            const user = (await this.db.query(`SELECT * FROM "Users" WHERE id=$1`, [idTeacher])).rows[0];
+            //Если нет id_usersdata
+            if (!user.id_usersdata){
+
+                console.log(1);
+                //Если логин и пароль не вписали, значит обновляем только ФИО
+                if ((login == "" || !login) && (password == "" || !password)){
+                    console.log(2);
+                    await this.db.query(`UPDATE "Users" SET full_name=$1 WHERE id=$2`, [fullName, idTeacher]);
+                    console.log(3);
+                }
+
+
+                //Если логин и пароль вписали, то создаем UsersData и связаываем его с Users
+                else if (login != "" && password != ""){
+                    console.log(4);
+                    const hashedPassword = await bcrypt.hash(password, salt);
+                    console.log(5);
+                    const idInseredUsersData =  (await this.db.query(`INSERT INTO "UsersData" ("login", "password") VALUES ($1, $2) RETURNING "id"`, [login, hashedPassword])).rows[0].id;
+                    console.log(6);
+                    await this.db.query(`UPDATE "Users" SET id_usersdata=$1 WHERE id=$2`, [idInseredUsersData, idTeacher]);
+                    console.log(7);
+                }
+            }
+
+            else {
+                const hashedPassword = await bcrypt.hash(password, salt);
+                await this.db.query(`UPDATE "UsersData" SET login=$1, password=$2 WHERE id=$3`, [login, hashedPassword, user.id_usersdata]);
+                await this.db.query(`UPDATE "Users" SET full_name=$1 WHERE id=$2`, [fullName, idTeacher]);
+            }
+        } catch (error) {
+            console.log(`Ошибка обновления учителя в БД: ${error}`);
+            
+        }
+    }
 }
 
 module.exports = new Database();

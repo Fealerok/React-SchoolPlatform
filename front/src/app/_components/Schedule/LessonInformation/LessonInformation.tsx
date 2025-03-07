@@ -3,6 +3,7 @@ import Input from '@/app/_ui/Input/Input'
 import { fetchWithAuth } from '@/app/_utils/fetchWithAuth/fetchWithAuth'
 import { useRouter } from 'next/navigation'
 import { AuthContext } from '@/app/_context/authContext'
+import { AsideContext } from '@/app/_context/asideContext'
 
 
 interface ILessonInformation{
@@ -22,7 +23,8 @@ const LessonInformation = ({
         name: string,
         lesson_date: string,
         lesson_start_time: string,
-        className: string
+        className: string,
+        teacher: string
     }>();
 
     const [newLessonName, setNewLessonName] = useState<string | undefined>("");
@@ -30,6 +32,11 @@ const LessonInformation = ({
     const [classesArray, setClasses] = useState<Array<{
         id: number, 
         name: string
+    }>>([]);
+
+    const [teachersArray, setTeachersArray] = useState<Array<{
+        id: number,
+        full_name: string
     }>>([]);
 
     const times = [
@@ -47,6 +54,7 @@ const LessonInformation = ({
     const inputRef = useRef<HTMLInputElement>(null);
 
     const {user} = useContext(AuthContext);
+    const {asideType} = useContext(AsideContext);
 
     const router = useRouter();
 
@@ -54,8 +62,8 @@ const LessonInformation = ({
         setSelectedClass(event.currentTarget.value);
     }
 
-    const onTeacherSelectChange = () => {
-
+    const onTeacherSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setSelectedTeacher(event.currentTarget.value);
     }
 
     const onTimeSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -72,6 +80,7 @@ const LessonInformation = ({
         else{
             setNewLessonName(lessonInformation?.name);
             getClasses();
+            getTeachers();
         }
         setIsEdit(!isEdit);
         
@@ -81,6 +90,11 @@ const LessonInformation = ({
 
         if (selectedClass == "Класс"){
             alert("Для сохранения, выберите название класса");
+            return;
+        }
+
+        if (selectedTeacher == "Учитель"){
+            alert("Для сохранения, выберите учителя");
             return;
         }
         
@@ -96,7 +110,8 @@ const LessonInformation = ({
                     lessonId: selectedLessonId,
                     name: input ? input.value : newLessonName,
                     time: selectedTime,
-                    className: selectedClass
+                    className: selectedClass,
+                    teacher: selectedTeacher
                 }
             })
         });
@@ -126,6 +141,24 @@ const LessonInformation = ({
             return;
         }
         setClasses(response.classes)
+    }
+
+    const getTeachers = async () => {
+        const response = await fetchWithAuth("/get-teachers", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response){
+            router.push("/auth");
+            location.reload();
+            return
+        }
+
+        setTeachersArray(response.teachers);
+
     }
 
     const getLessonInformation = async () => {
@@ -224,10 +257,10 @@ const LessonInformation = ({
         
                         
                     </div>
-                    <div className="w-full flex justify-between gap-[40px]">
+                    <div className="w-full flex flex-col gap-[20px]">
                         {isEdit ? (
                             <select
-                                className='w-full'
+                                className='w-full border-[1px] border-border-blocks'
                                 value={selectedClass}
                                 onChange={(event) => onClassSelectChange(event)}
                             >
@@ -244,23 +277,28 @@ const LessonInformation = ({
         
                           {isEdit ?
                               <select
-                                  className='w-full'
+                                  className='w-full border-[1px] border-border-blocks'
                                   value={selectedTeacher}
-                                  onChange={() => onTeacherSelectChange()}>
+                                  onChange={(event) => onTeacherSelectChange(event)}>
                                   <option disabled>Учитель</option>
+                                  {teachersArray.map(teacher => 
+                                    <option key={teacher.id} value={teacher.full_name}>
+                                    {teacher.full_name}
+                                    </option>
+                                  )}
                               </select> :
-                              <p>Учитель: </p>
+                              <p>Учитель: {lessonInformation.teacher}</p>
                           }
                     </div>
                 </div>
                 <div className="w-1/2 flex flex-col items-end justify-between p-[40px]">
-                    <div className={`${user?.role == "Ученик" || user?.role == "Учитель" ? "justify-center" : ""} flex items-end h-full  flex-col gap-[20px] w-full`}>
+                    <div className={`${(user?.role == "Ученик" || user?.role == "Учитель" || asideType == "Главная") ? "justify-center" : ""} flex items-end h-full  flex-col gap-[20px] w-full`}>
                           <button 
                           onClick={() => onEditCickHandle()}
-                          className={`${user?.role == "Ученик" || user?.role == "Учитель" ? "hidden" : "block"} w-[90%] transition-colors duration-150 hover:bg-button-bg hover:text-white border-[2px] border-border-blocks rounded-[6px] h-[40px]`}>{isEdit ? "Сохранить" : "Редактировать"}</button>
+                          className={`${(user?.role == "Ученик" || user?.role == "Учитель" || asideType == "Главная") ? "hidden" : "block"} w-[90%] transition-colors duration-150 hover:bg-button-bg hover:text-white border-[2px] border-border-blocks rounded-[6px] h-[40px]`}>{isEdit ? "Сохранить" : "Редактировать"}</button>
                           <button 
                           onClick={() => onDeleteLesson()}
-                          className={`${user?.role == "Ученик" || user?.role == "Учитель" ? "hidden" : "block"} w-[90%] transition-colors duration-150 hover:bg-button-bg hover:text-white border-[2px] border-border-blocks rounded-[6px] h-[40px]`}>Удалить</button>
+                          className={`${(user?.role == "Ученик" || user?.role == "Учитель" || asideType == "Главная") ? "hidden" : "block"} w-[90%] transition-colors duration-150 hover:bg-button-bg hover:text-white border-[2px] border-border-blocks rounded-[6px] h-[40px]`}>Удалить</button>
                           <button className={`w-[90%] transition-colors duration-150 hover:bg-button-bg hover:text-white bg-button-bg border-[2px] border-border-blocks rounded-[6px] h-[40px] text-white`}>Присоединиться</button>
                     </div>
                     

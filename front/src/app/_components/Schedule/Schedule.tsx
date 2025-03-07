@@ -124,7 +124,7 @@ const Schedule = () => {
     };
 
     return (
-        <div className={`w-full h-full relative`}>
+        <div className={`w-full h-full`}>
             <AddNewLesson 
             isAddNewLesson={isAddNewLesson}
             setIsAddNewLesson={setIsAddNewLesson}

@@ -316,4 +316,62 @@ router.post("/get-user-class", async (req: Request, res: Response): Promise<any>
     }
 });
 
+router.post("/get-teachers", async (req: Request, res: Response): Promise<any> => {
+    try {
+        
+        const teachers = await db.getTeachers();
+
+        return res.status(200).json({teachers});
+    } catch (error) {
+        console.log(`Ошибка получения учителей на сервере: ${error}`);
+        return res.sendStatus(500);
+    }
+});
+
+router.post("/add-new-teacher", async (req: Request, res: Response): Promise<any> => {
+    try {
+        
+        const {surname, name, patronymic} = req.body;
+
+        await db.addTeacher(surname, name, patronymic);
+
+        
+        return res.status(200).json({message: "Успешно"});
+    } catch (error) {
+        console.log(`Ошибка добавления учителя на сервере: ${error}`);
+        return res.sendStatus(500);
+    }
+});
+
+router.delete("/delete-teacher", async (req: Request, res: Response): Promise<any> => {
+    try {
+        const {idTeacher} = req.body;
+
+        await db.deleteTeacher(idTeacher);
+
+        
+        return res.status(200).json({message: "Успешно"});
+    } catch (error) {
+        console.log(`Ошибка добавления учителя на сервере: ${error}`);
+        return res.sendStatus(500);
+    }
+});
+
+
+router.post("/update-teacher", async (req: Request, res: Response): Promise<any> => {
+    try {
+        const {idTeacher, fullName, login, password} = req.body;
+
+        console.log(req.body);
+
+        await db.updateTeacher(idTeacher, fullName, login, password);
+
+        
+        return res.status(200).json({message: "Успешно"});
+    } catch (error) {
+        console.log(`Ошибка добавления учителя на сервере: ${error}`);
+        return res.sendStatus(500);
+    }
+});
+
 module.exports = router;
