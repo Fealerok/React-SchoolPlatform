@@ -374,4 +374,17 @@ router.post("/update-teacher", async (req: Request, res: Response): Promise<any>
     }
 });
 
+router.post("/send-request", async (req: Request, res: Response): Promise<any> => {
+    try {
+        const {nameRequest, textRequest, idUser} = req.body;
+
+        await db.createRequest(nameRequest, textRequest, idUser);
+
+        return res.status(200).json({message: ""});
+    } catch (error) {
+        console.log(`Ошибка отправки обращения в ТП на сервере: ${error}`);
+        return res.sendStatus(500);
+    }
+});
+
 module.exports = router;

@@ -11,6 +11,7 @@ import checkAuth from '@/app/_utils/checkAuth/checkAuth';
 import { getTokens, setTokens } from '@/app/_utils/localStorage/localStorage';
 import { fetchWithAuth } from '@/app/_utils/fetchWithAuth/fetchWithAuth';
 import Profile from '@/app/_components/Profile/Profile';
+import TicketToSupport from '@/app/_components/TicketToSupport/TicketToSupport';
 
 
 
@@ -24,6 +25,7 @@ const MainLayout = ({
     const {user, setUser} = useContext(AuthContext);
 
     const [isProfile, setIsProfile] = useState(false);
+    const [isTicketToSupport, setIsTicketToSupport] = useState(false);
 
     const router = useRouter();
 
@@ -33,6 +35,10 @@ const MainLayout = ({
 
     const onProfileButtonClick = () => {
         setIsProfile(true);
+    }
+
+    const onTicketToSupportClick = () => {
+        setIsTicketToSupport(true);
     }
 
     const startFunction = async () => {
@@ -63,10 +69,22 @@ const MainLayout = ({
     isProfile={isProfile}
     setIsProfile={setIsProfile} />
 
+    <TicketToSupport 
+    isTicketToSupport={isTicketToSupport}
+    setIsTicketToSupport={setIsTicketToSupport}/>
+
         <header className='h-20 border-b-[3px] border-border-blocks flex justify-between items-center'>
-            <div className="w-80 flex justify-center items-center">
-                <Image src={logo} alt=''/>
-            </div>
+              <div className="flex items-center">
+                  <div className="w-80 flex justify-center items-center">
+                      <Image src={logo} alt='' />
+                  </div>
+
+                  <div className="small_buttons">
+                      <button 
+                      className='h-[40px] pl-[10px] pr-[10px]'
+                      onClick={() => {setIsTicketToSupport(true)}}>Обратиться в техподдержку</button>
+                  </div>
+              </div>
 
             <button 
             onClick={onProfileButtonClick}
@@ -76,7 +94,7 @@ const MainLayout = ({
             </button>
             
         </header>
-        <div className={`${isProfile ? "pointer-events-none" : ""} flex h-[calc(100%-80px)] w-full relative`}>
+        <div className={`${isProfile || isTicketToSupport ? "pointer-events-none" : ""} flex h-[calc(100%-80px)] w-full relative`}>
             <Aside type={asideType} />
             {children}
         </div>

@@ -75,6 +75,20 @@ export async function up(knex: Knex): Promise<void> {
     } catch (error) {
         console.log(`Ошибка создания Users ${error}`);
     }
+
+    //Создание таблицы SupportRequests
+    try {
+        await knex.schema.createTable("SupportRequests", (table) => {
+            table.increments('id').primary();
+            table.integer("id_user").references("id").inTable("Users").onDelete("CASCADE").onUpdate("CASCADE");
+            table.text("name_request");
+            table.text("text_request");
+        });
+    } catch (error) {
+        console.log(`Ошибка создания SupportRequest ${error}`);
+    }
+
+
 }
 
 

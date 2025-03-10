@@ -527,6 +527,15 @@ class Database{
             
         }
     }
+
+    createRequest = async (nameRequest: string, textRequest: string, idUser: number) => {
+        try {
+            await this.db.query(`INSERT INTO "SupportRequests" ("id_user", "name_request", "text_request") VALUES ($1, $2, $3)`, [idUser, nameRequest, textRequest]);
+        } catch (error) {
+            console.log(`Ошибка создания заявки в ТП в БД: ${error}`);
+            
+        }
+    }
 }
 
 module.exports = new Database();
