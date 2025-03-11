@@ -387,4 +387,29 @@ router.post("/send-request", async (req: Request, res: Response): Promise<any> =
     }
 });
 
+router.post("/get-tickets", async (req: Request, res: Response): Promise<any> => {
+    try {
+        const tickets = await db.getTickets();
+
+        console.log(tickets);
+
+        return res.status(200).json({tickets});
+    } catch (error) {
+        console.log(`Ошибка получения тикетов на сервере: ${error}`);
+        return res.sendStatus(500);
+    }
+});
+
+router.post("/delete-ticket", async (req: Request, res: Response): Promise<any> => {
+    try {
+        const {idTicket} = req.body;
+
+        console.log(idTicket);
+        await db.deleteTicket(idTicket);
+        return res.status(200).json({message: "Успешно"});
+    } catch (error) {
+        console.log(`Ошибка удаления тикета на сервере: ${error}`);
+        return res.sendStatus(500);
+    }
+});
 module.exports = router;

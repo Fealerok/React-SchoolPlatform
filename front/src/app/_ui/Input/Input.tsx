@@ -38,7 +38,7 @@ const Input = ({
             <input
                 className='absolute h-full w-full border-2 outline-0 text-xl pl-[10px] border-#DCDBDF rounded-[15px] peer'
                 type={type == "Текст" ? "text" : "password"}
-                placeholder={inputPlaceholder || inputPlaceholder != "" ? inputPlaceholder : ""}
+                
                 onChange={changeHandle}
                 ref={inputRef}
                 value={value} // Используем внутреннее состояние для значения

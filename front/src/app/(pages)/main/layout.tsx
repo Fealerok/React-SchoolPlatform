@@ -79,10 +79,14 @@ const MainLayout = ({
                       <Image src={logo} alt='' />
                   </div>
 
-                  <div className="small_buttons">
+                  <div className="flex small_buttons gap-[20px]">
                       <button 
                       className='h-[40px] pl-[10px] pr-[10px]'
                       onClick={() => {setIsTicketToSupport(true)}}>Обратиться в техподдержку</button>
+
+                      <button
+                          className={`${user?.role == "Техподдержка" ? "block" : "hidden"} h-[40px] pl-[10px] pr-[10px]`}
+                          onClick={() => setAsideType("Список обращений")}>Список обращений</button>
                   </div>
               </div>
 

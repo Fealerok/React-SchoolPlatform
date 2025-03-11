@@ -5,6 +5,7 @@ import Schedule from '@/app/_components/Schedule/Schedule'
 import { AsideContext } from '@/app/_context/asideContext'
 import ClassesList from '@/app/_components/ClassList/ClassList'
 import TeachersList from '@/app/_components/TeachersList/TeachersList'
+import TicketList from '@/app/_components/TicketsList/TicketList'
 
 const page = () => {
 
@@ -24,6 +25,10 @@ const page = () => {
 
   else if (asideType == "Учителя"){
     return (<TeachersList />)
+  }
+
+  else if (asideType == "Список обращений"){
+    return (<TicketList />)
   }
   
 }

@@ -536,6 +536,26 @@ class Database{
             
         }
     }
+
+    getTickets = async () => {
+        try {
+            const tickets = (await this.db.query(`SELECT "SupportRequests".id, name_request, text_request, "Users".full_name FROM "SupportRequests" JOIN "Users" ON "SupportRequests".id_user = "Users".id`)).rows;
+
+            return tickets;
+        } catch (error) {
+            console.log(`Ошибка получения тикетов в БД: ${error}`);
+            
+        }
+    }
+
+    deleteTicket = async (idTicket: number) => {
+        try {
+            await this.db.query(`DELETE FROM "SupportRequests" WHERE id=$1`, [idTicket]);
+        } catch (error) {
+            console.log(`Ошибка удаления тикета в БД: ${error}`);
+            
+        }
+    }
 }
 
 module.exports = new Database();

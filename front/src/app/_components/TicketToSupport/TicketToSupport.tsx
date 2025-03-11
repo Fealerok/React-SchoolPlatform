@@ -59,6 +59,7 @@ const TicketToSupport = ({
     }
 
     alert("Обращение в техподдержку отправлено");
+    setIsTicketToSupport(false);
   }
 
 
