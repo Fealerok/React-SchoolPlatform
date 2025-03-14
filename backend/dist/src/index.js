@@ -50,8 +50,8 @@ const runSeeds = () => __awaiter(void 0, void 0, void 0, function* () {
 });
 //Запускаем миграции и сиды, затем сервер
 const Main = () => __awaiter(void 0, void 0, void 0, function* () {
-    //await runMigrations();
-    //await runSeeds();
+    yield runMigrations();
+    yield runSeeds();
     yield app.listen(port, () => {
         console.log(`Server is started on port: ${port}`);
     });

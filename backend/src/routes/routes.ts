@@ -412,4 +412,14 @@ router.post("/delete-ticket", async (req: Request, res: Response): Promise<any> 
         return res.sendStatus(500);
     }
 });
+
+router.get("/get-data", async (req: Request, res: Response): Promise<any> => {
+    try {
+        
+        return res.status(200).json({message: "Успешно"});
+    } catch (error) {
+        return res.sendStatus(500);
+    }
+});
+
 module.exports = router;

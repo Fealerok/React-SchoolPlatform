@@ -339,4 +339,12 @@ router.post("/delete-ticket", (req, res) => __awaiter(void 0, void 0, void 0, fu
         return res.sendStatus(500);
     }
 }));
+router.get("/get-data", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        return res.status(200).json({ message: "Успешно" });
+    }
+    catch (error) {
+        return res.sendStatus(500);
+    }
+}));
 module.exports = router;
