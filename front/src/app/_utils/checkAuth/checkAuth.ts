@@ -10,7 +10,7 @@ const checkAuth = async (accessToken: string | null, refreshToken: string | null
     }
 }>  => {
     //Делаем запрос на сервер с передачей токенов
-    const response = await fetch("http://localhost:3010/check-auth",{
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/check-auth`,{
         method: "POST",
         headers: {
             "Content-Type": "application/json"
