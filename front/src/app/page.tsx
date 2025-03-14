@@ -18,16 +18,19 @@ export default function Home() {
      }, [])
  
      const startFunction = async () => {
-         console.log(999);
+        console.log(1);
          const response = await fetchWithAuth("/check-auth", {
              method: "POST"
          });
+
+         
          if (!response?.user){
              router.push("/auth");
+             console.log(2);
          }
- 
+         
          else{
-             
+            console.log(3);
              await setUser(response.user);
              console.log(response.user);
              setAsideType("Главная");
@@ -37,7 +40,7 @@ export default function Home() {
 
   return (
     <div className="h-full">
-      
+      123
     </div>
   );
 }

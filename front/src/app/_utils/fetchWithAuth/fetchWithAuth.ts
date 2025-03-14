@@ -7,7 +7,7 @@ interface IFetchOptions {
     // Другие свойства, которые могут быть в `options`
 }
 
-const baseUrl = "http://localhost:3010"
+const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const updateAccessToken = async () => {
     const refreshToken = localStorage.getItem("refreshToken");
