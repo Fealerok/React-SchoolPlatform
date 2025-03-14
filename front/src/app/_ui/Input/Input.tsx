@@ -33,20 +33,41 @@ const Input = ({
         setInputValue(newValue); // Передаем новое значение в родительский компонент
     }
 
-    return (
-        <div className='relative h-[50px] w-full'>
-            <input
-                className='absolute h-full w-full border-2 outline-0 text-xl pl-[10px] border-#DCDBDF rounded-[15px] peer'
-                type={type == "Текст" ? "text" : "password"}
-                
-                onChange={changeHandle}
-                ref={inputRef}
-                value={value} // Используем внутреннее состояние для значения
-            />
+    if ((inputPlaceholder || inputPlaceholder != "") && !isLabel){
+        return (
+            <div className='relative h-[50px] w-full'>
+                <input
+                    className='absolute h-full w-full border-2 outline-0 text-xl pl-[10px] border-#DCDBDF rounded-[15px] peer'
+                    type={type == "Текст" ? "text" : "password"}
+                    placeholder={inputPlaceholder}
+                    onChange={changeHandle}
+                    ref={inputRef}
+                    value={value} // Используем внутреннее состояние для значения
+                />
+    
+                {isLabel ? <label className={`transition-all duration-200  absolute top-[50%] translate-y-[-50%] pointer-events-none text-2xl pl-[10px] ${isHasValue ? 'text-[22px]' : 'text-2xl'} ${isHasValue && `!-translate-y-[60px]`}`}>{inputPlaceholder}</label> : null}
+            </div>
+        )
+    }
 
-            {isLabel ? <label className={`transition-all duration-200  absolute top-[50%] translate-y-[-50%] pointer-events-none text-2xl pl-[10px] ${isHasValue ? 'text-[22px]' : 'text-2xl'} ${isHasValue && `!-translate-y-[60px]`}`}>{inputPlaceholder}</label> : null}
-        </div>
-    )
+    else{ 
+        return (
+            <div className='relative h-[50px] w-full'>
+                <input
+                    className='absolute h-full w-full border-2 outline-0 text-xl pl-[10px] border-#DCDBDF rounded-[15px] peer'
+                    type={type == "Текст" ? "text" : "password"}
+                    
+                    onChange={changeHandle}
+                    ref={inputRef}
+                    value={value} // Используем внутреннее состояние для значения
+                />
+    
+                {isLabel ? <label className={`transition-all duration-200  absolute top-[50%] translate-y-[-50%] pointer-events-none text-2xl pl-[10px] ${isHasValue ? 'text-[22px]' : 'text-2xl'} ${isHasValue && `!-translate-y-[60px]`}`}>{inputPlaceholder}</label> : null}
+            </div>
+        )
+    }
+
+   
 }
 
 export default Input
