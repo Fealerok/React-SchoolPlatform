@@ -48,6 +48,7 @@ export const fetchWithAuth = async (url: string, options: IFetchOptions = {}) =>
         headers
     }
 
+    
     let response = await fetch(`${baseUrl}${url}`, fetchOptions);
 
     if (response.status == 401){
