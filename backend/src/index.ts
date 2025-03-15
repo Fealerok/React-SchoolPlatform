@@ -64,7 +64,7 @@ const Main = async () => {
 
     // Запуск сервера
     app.listen(port, () => {
-      console.log(`Сервер запущен на порту: ${port}`);
+      console.log(`Сервер запущен на порту: ${port} :)`);
     });
   } catch (error) {
     console.error(`Ошибка при запуске сервера: ${error}`);
