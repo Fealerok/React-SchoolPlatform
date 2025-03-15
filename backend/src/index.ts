@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import config from "../knexfile";
 import knex from "knex";
 import cors from "cors";
+import router from "./routes/routes"; // Импортируем роутер
 
 require("dotenv").config();
 
@@ -60,8 +61,6 @@ const runSeeds = async () => {
 // Запускаем миграции, сиды и сервер
 const Main = async () => {
   try {
-    await runMigrations(); // Запуск миграций
-    await runSeeds(); // Запуск сидов
 
     // Запуск сервера
     app.listen(port, () => {

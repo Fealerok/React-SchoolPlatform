@@ -423,3 +423,4 @@ router.get("/get-data", async (req: Request, res: Response): Promise<any> => {
 });
 
 module.exports = router;
+export default router;
