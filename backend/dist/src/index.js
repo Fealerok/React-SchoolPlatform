@@ -28,7 +28,7 @@ app.use((0, cors_1.default)({
     credentials: true, // Разрешаем передачу кук и заголовков авторизации
 }));
 // Обработка preflight-запросов для всех роутов
-app.options("*", (0, cors_1.default)());
+app.options("https://react-school-platform.vercel.app", (0, cors_1.default)());
 // Middleware для парсинга JSON
 app.use(express_1.default.json());
 // Логирование всех входящих запросов (для отладки)
