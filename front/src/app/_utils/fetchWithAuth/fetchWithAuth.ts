@@ -7,7 +7,7 @@ interface IFetchOptions {
     // Другие свойства, которые могут быть в `options`
 }
 
-const baseUrl = "https://react-schoolplatform-production.up.railway.app";
+const baseUrl = "http://localhost:3010";
 
 const updateAccessToken = async () => {
     const refreshToken = localStorage.getItem("refreshToken");
