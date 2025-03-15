@@ -13,7 +13,7 @@ const app = express();
 const port = process.env.SERVER_PORT; //3010
 
 app.use(cors({
-    origin: "https://react-school-platform-lvrf7mp7z-fealers-projects.vercel.app",
+    origin: "http://localhost:3000",
     METHODS: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ['Content-Type', 'Authorization'], // Разрешаемые заголовки
 }));
