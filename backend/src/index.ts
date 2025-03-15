@@ -18,6 +18,8 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization'], // Разрешаемые заголовки
 }));
 app.use(express.json());
+
+app.use(cors());
 app.use("/", router);
 
 

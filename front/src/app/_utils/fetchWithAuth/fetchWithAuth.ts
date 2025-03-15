@@ -18,7 +18,6 @@ const updateAccessToken = async () => {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({refreshToken}),
-        mode: "no-cors"
     });
 
 
@@ -51,10 +50,7 @@ export const fetchWithAuth = async (url: string, options: IFetchOptions = {}) =>
 
     
     try {
-        let response = await fetch(`${baseUrl}${url}`, {
-            ...fetchOptions,
-            mode: "no-cors"
-        });
+        let response = await fetch(`${baseUrl}${url}`, fetchOptions);
 
         if (response.status == 401){
             accessToken = await updateAccessToken();
