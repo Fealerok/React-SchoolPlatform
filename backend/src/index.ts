@@ -14,7 +14,7 @@ const port = process.env.SERVER_PORT; //3010
 
 app.use(cors({
     origin: "https://react-school-platform.vercel.app",
-    METHODS: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ['Content-Type', 'Authorization'], // Разрешаемые заголовки
 }));
 app.use(express.json());
