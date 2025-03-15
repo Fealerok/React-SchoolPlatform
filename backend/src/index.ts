@@ -16,6 +16,7 @@ app.use(cors({
     origin: "https://react-school-platform.vercel.app",
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ['Content-Type', 'Authorization'], // Разрешаемые заголовки
+    credentials: true,
 }));
 
 app.use(express.json());
