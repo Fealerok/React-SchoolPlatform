@@ -17,7 +17,9 @@ app.use(cors({
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ['Content-Type', 'Authorization'], // Разрешаемые заголовки
 }));
+
 app.use(express.json());
+app.options("/auth", cors()); 
 app.use("/", router);
 
 
