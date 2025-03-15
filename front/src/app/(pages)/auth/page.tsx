@@ -37,7 +37,7 @@ const AuthPage = () => {
         body: JSON.stringify({
           login,
           password
-        })
+        }),
       });
 
       //Если успешная аутентификация, выводим данные

@@ -3,7 +3,7 @@ import { getTokens } from "../localStorage/localStorage"
 interface IFetchOptions {
     method?: string; // Метод запроса (GET, POST и т.д.)
     headers?: Record<string, string>; // Заголовки запроса
-    body?: BodyInit; // Тело запроса (например, JSON, FormData)
+    body?: BodyInit; // Тело запроса (например, JSON, FormData),
     // Другие свойства, которые могут быть в `options`
 }
 
@@ -17,7 +17,8 @@ const updateAccessToken = async () => {
         headers:{
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({refreshToken})
+        body: JSON.stringify({refreshToken}),
+        mode: "no-cors"
     });
 
 
@@ -40,17 +41,20 @@ export const fetchWithAuth = async (url: string, options: IFetchOptions = {}) =>
     const headers = {
         ...options.headers,
 
-        Authorization: `Bearer ${accessToken}`
+        Authorization: `Bearer ${accessToken}`,
     }
 
     const fetchOptions = {
         ...options,
-        headers
+        headers,
     }
 
     
     try {
-        let response = await fetch(`${baseUrl}${url}`, fetchOptions);
+        let response = await fetch(`${baseUrl}${url}`, {
+            ...fetchOptions,
+            mode: "no-cors"
+        });
 
         if (response.status == 401){
             accessToken = await updateAccessToken();
