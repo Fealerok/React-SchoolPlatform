@@ -49,22 +49,28 @@ export const fetchWithAuth = async (url: string, options: IFetchOptions = {}) =>
     }
 
     
-    let response = await fetch(`${baseUrl}${url}`, fetchOptions);
+    try {
+        let response = await fetch(`${baseUrl}${url}`, fetchOptions);
 
-    if (response.status == 401){
-        accessToken = await updateAccessToken();
-
-        if (!accessToken) return;
-        headers.Authorization = `Bearer ${accessToken}`;
-        fetchOptions.headers = headers;
-        response = await fetch(`${baseUrl}${url}`, fetchOptions);     
-    }
-
-
-    if (!response.ok) {
+        if (response.status == 401){
+            accessToken = await updateAccessToken();
+    
+            if (!accessToken) return;
+            headers.Authorization = `Bearer ${accessToken}`;
+            fetchOptions.headers = headers;
+            response = await fetch(`${baseUrl}${url}`, fetchOptions);     
+        }
+    
+    
+        if (!response.ok) {
+            return response.json();
+        }
+    
         return response.json();
+    } catch (error) {
+        console.log(`Ошибка выполнения запроса: ${error}`);
+        
     }
-
-    return response.json();
+   
 
 }
