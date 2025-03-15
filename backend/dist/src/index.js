@@ -15,45 +15,63 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const knexfile_1 = __importDefault(require("../knexfile"));
 const knex_1 = __importDefault(require("knex"));
-const router = require("./routes/routes");
+const cors_1 = __importDefault(require("cors"));
+const routes_1 = __importDefault(require("./routes/routes")); // Импортируем роутер
 require("dotenv").config();
-const cors = require("cors");
 const app = (0, express_1.default)();
-const port = process.env.SERVER_PORT; //3010
-app.use(cors({
-    origin: "https://react-school-platform.vercel.app",
-    METHODS: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ['Content-Type', 'Authorization'], // Разрешаемые заголовки
+const port = process.env.SERVER_PORT || 3010; // Порт из переменных окружения или 3010 по умолчанию
+// Настройка CORS
+app.use((0, cors_1.default)({
+    origin: "*", // Разрешаем запросы только с этого домена
+    methods: ["GET", "POST", "PUT", "DELETE"], // Разрешенные методы
+    allowedHeaders: ["Content-Type", "Authorization"], // Разрешенные заголовки
+    credentials: true, // Разрешаем передачу кук и заголовков авторизации
 }));
+// Обработка preflight-запросов для всех роутов
+app.options("*", (0, cors_1.default)());
+// Middleware для парсинга JSON
 app.use(express_1.default.json());
-app.use("/", router);
-//Определяем среду программы (в данном случае - разработка)
+// Логирование всех входящих запросов (для отладки)
+app.use((req, res, next) => {
+    console.log(`Incoming request: ${req.method} ${req.url}`);
+    next();
+});
+// Подключаем роутер
+app.use("/", routes_1.default);
+// Определяем среду программы (в данном случае - разработка)
 const environment = process.env.NODE_ENV || "development";
 const knexInstance = (0, knex_1.default)(knexfile_1.default[environment]);
-//Метод запуска всех миграций
+// Метод запуска всех миграций
 const runMigrations = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield knexInstance.migrate.latest();
+        console.log("Миграции успешно выполнены");
     }
     catch (error) {
-        console.log(`Ошибка запуска миграций: ${error}`);
+        console.error(`Ошибка запуска миграций: ${error}`);
     }
 });
-//Метод запуска сидов (заполняющих изначальные данные)
+// Метод запуска сидов (заполняющих изначальные данные)
 const runSeeds = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield knexInstance.seed.run();
+        console.log("Сиды успешно выполнены");
     }
     catch (error) {
-        console.log(`Ошибка запуска сидов для миграций: ${error}`);
+        console.error(`Ошибка запуска сидов для миграций: ${error}`);
     }
 });
-//Запускаем миграции и сиды, затем сервер
+// Запускаем миграции, сиды и сервер
 const Main = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield runMigrations();
-    yield runSeeds();
-    yield app.listen(port, () => {
-        console.log(`Server is started on port: ${port}`);
-    });
+    try {
+        // Запуск сервера
+        app.listen(port, () => {
+            console.log(`Сервер запущен на порту: ${port} :)`);
+        });
+    }
+    catch (error) {
+        console.error(`Ошибка при запуске сервера: ${error}`);
+    }
 });
+// Запуск приложения
 Main();
