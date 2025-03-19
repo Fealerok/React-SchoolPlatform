@@ -12,16 +12,12 @@ const cors = require("cors");
 const app = express();
 const port = process.env.SERVER_PORT; //3010
 
-app.use(
-    cors({
-      origin: "https://react-school-platform.vercel.app", // Разрешаем запросы только с этого домена
-      methods: ["GET", "POST", "PUT", "DELETE"], // Разрешенные методы
-      allowedHeaders: ["Content-Type", "Authorization"], // Разрешенные заголовки
-    })
-  );
+app.use(cors({
+    origin: "http://localhost:3000",
+    METHODS: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ['Content-Type', 'Authorization'], // Разрешаемые заголовки
+}));
 app.use(express.json());
-
-app.use(cors());
 app.use("/", router);
 
 
@@ -50,8 +46,8 @@ const runSeeds = async () => {
 
 //Запускаем миграции и сиды, затем сервер
 const Main = async () => {
-    //await runMigrations();
-    //await runSeeds();
+    await runMigrations();
+    await runSeeds();
 
     await app.listen(port, () => {
         console.log(`Server is started on port: ${port}`);
@@ -59,6 +55,7 @@ const Main = async () => {
 }
 
 Main();
+
 
 
 

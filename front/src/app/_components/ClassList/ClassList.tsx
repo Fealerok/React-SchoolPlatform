@@ -226,108 +226,106 @@ const ClassesList = () => {
         getClasses();
     }, [isAddClass, isEditClass]);
 
-    useEffect(() => {
-        console.log(passwordReg);
-    }, [passwordReg]);
 
 
   return (
-    <div className='flex justify-between w-full h-full border'>
+      <div className='flex justify-between w-full h-full border classes_list'>
+          <EditClass selectedClassId={activeClassButtonId} isEditClass={isEditClass} setIsEditClass={setIsEditClass} setClassName={setClassName}></EditClass>
+          <AddClass setNewClass={setNewClass} isAddClass={isAddClass} setIsAddClass={setIsAddClass}></AddClass>
+          <AddStudent selectedClassId={activeClassButtonId} setNewStudent={setNewStudent} isAddStudent={isAddStudent} setIsAddStudent={setIsAddStudent}></AddStudent>
 
-        <EditClass selectedClassId={activeClassButtonId} isEditClass={isEditClass} setIsEditClass={setIsEditClass} setClassName={setClassName}></EditClass>
-        <AddClass setNewClass={setNewClass} isAddClass={isAddClass} setIsAddClass={setIsAddClass}></AddClass>
-        <AddStudent selectedClassId={activeClassButtonId} setNewStudent={setNewStudent} isAddStudent={isAddStudent} setIsAddStudent={setIsAddStudent}></AddStudent>
+          {/* Список классов */}
+          <div className={`${isAddClass || isEditClass || isAddStudent ? "pointer-events-none" : ""} w-[30%] overflow-hidden flex h-full border-r-[3px] border-border-blocks justify-between items-center flex-col`}>
+              <div className="mt-[45px] w-full flex flex-col small_buttons">
+                  {classes?.length !== 0 ? classes?.map((classData) => {
+                      return (
+                          <button
+                              onClick={() => setActiveClassButton(classData.id)}
+                              className={`mb-[32px] min-w-0 overflow-hidden flex-shrink-0 h-10 flex items-center pl-[15px] justify-start text-xl ml-5 mr-5 truncate ${activeClassButtonId === classData.id ? `active-button` : ``}`}
+                              key={classData.id}
+                          >
+                              {classData.name}
+                          </button>
+                      );
+                  }) : (<span className='text-center'>Список пуст!</span>)}
+              </div>
 
-        {/* Список класов */}
-        <div className={`${isAddClass || isEditClass || isAddStudent ? "pointer-events-none" : ""} flex h-full border-r-[3px] border-border-blocks justify-between items-center flex-col w-full`}> 
-            <div className="mt-[45px] h-[75%] w-full flex flex-col small_buttons overflow-auto">
-                {classes?.length !== 0 ? classes?.map((classData) => {
-                    return (
-                        <button 
-                        onClick={() => setActiveClassButton(classData.id)} 
-                        className={`mb-[32px] flex-shrink-0 h-10 flex items-center pl-[15px] text-xl justify-start ml-5 mr-5 ${activeClassButtonId === classData.id ? `active-button` : ``}`} 
-                        key={classData.id}>{classData.name}</button>
-                    )
-                }) : (<span className='text-center'>Список пуст!</span>)}
-            </div>
+              <div className="flex flex-col gap-[20px] w-[90%] mb-5">
+                  <div className="flex w-full justify-between buttons">
+                      <button onClick={() => setIsAddClass(true)}>Добавить</button>
+                      <button onClick={deleteClass}>Удалить</button>
+                  </div>
+                  <div className="flex w-full justify-center buttons">
+                      <button className='flex-1' onClick={editClass}>Редактировать</button>
+                  </div>
+              </div>
+          </div>
 
-            <div className="flex flex-col gap-[20px] w-[90%] mb-5">
-                <div className="flex w-full justify-between buttons">
-                    <button onClick={() => setIsAddClass(true)}>Добавить</button>
-                    <button onClick={deleteClass}>Удалить</button>
-                </div>
-                <div className="flex w-full justify-center buttons">
-                    <button className='flex-1' 
-                    onClick={editClass}>Редактировать</button>
-                </div>
-            </div>
-        </div> 
+          {/* Список учеников */}
+          <div className={`${isAddStudent || isEditClass ? 'pointer-events-none' : ""} w-[30%] flex h-full border-r-[3px] border-border-blocks flex-col small_buttons justify-between items-center`}>
+              <div className="mt-[45px] h-[75%] w-full flex flex-col small_buttons overflow-auto">
+                  {students?.length !== 0 ?
+                      students?.map((student) => (
+                          <button
+                              className={`${activeStudentButtonId == student.id ? 'active-button' : ''} min-w-0 overflow-hidden mb-[32px] flex-shrink-0 h-10 flex items-center pl-[15px] text-xl justify-start ml-5 mr-5 truncate`}
+                              key={student.id}
+                              onClick={() => setActiveStudentButton(student.id)}
+                          >
+                              {student.full_name}
+                          </button>
+                      )) : (<span className='text-center'>Список пуст!</span>)}
+              </div>
 
-        {/* Список учеников */}
-        <div className={`${isAddStudent || isEditClass ? 'pointer-events-none' : ""} flex w-full h-full border-r-[3px] border-border-blocks flex-col small_buttons justify-between items-center`}>
-            <div className="mt-[45px] h-[75%] w-full flex flex-col small_buttons overflow-auto">
+              <div className={`flex flex-col gap-[20px] w-[90%] ${activeClassButtonId ? `block` : `hidden`}`}>
+                  <div className="flex w-full justify-between buttons mb-5">
+                      <button onClick={() => setIsAddStudent(true)}>Добавить</button>
+                      <button onClick={deleteStudent}>Удалить</button>
+                  </div>
+              </div>
+          </div>
 
-                {students?.length !== 0 ? 
-                students?.map((student) => (
-                    <button className={`${activeStudentButtonId == student.id ? 'active-button' : ''} mb-[32px] flex-shrink-0 h-10 flex items-center pl-[15px] text-xl justify-start ml-5 mr-5`} 
-                    key={student.id}
-                    onClick={() => setActiveStudentButton(student.id)}>{student.full_name}</button>
-                )) : (<span className='text-center'>Список пуст!</span>)}
+          {/* Редактирование ученика */}
+          <div className={`${activeStudentButtonId ? 'block' : 'hidden'} w-[40%] flex h-full flex-col items-center justify-between`}>
+              <div className={`${activeStudentButtonId ? 'block' : 'hidden'} pl-[15px] pr-[15px] h-[75%] w-full flex flex-col forms gap-8 mt-[45px]`}>
+                  <form className='flex items-center justify-between'>
+                      <span>Класс: </span>
+                      <Input initialText={selectedStudent?.classname} type={"Текст"} setInputValue={setClassReg} inputPlaceholder='Класс' isLabel={false} />
+                  </form>
 
-                
-            </div>
-                
+                  <form className='flex items-center justify-between'>
+                      <span>Фамилия: </span>
+                      <Input initialText={selectedStudent?.full_name.split(" ")[0]} type={"Текст"} setInputValue={setSurnameReg} inputPlaceholder='Фамилия' isLabel={false} />
+                  </form>
 
-            <div className={`flex flex-col gap-[20px] w-[90%] ${activeClassButtonId ? `block` : `hidden`}`}>
-                <div className="flex w-full justify-between buttons mb-5">
-                    <button onClick={() => setIsAddStudent(true)}>Добавить</button>
-                    <button onClick={deleteStudent}>Удалить</button>
-                </div>
-            </div>  
-        </div>
+                  <form className='flex items-center justify-between'>
+                      <span>Имя: </span>
+                      <Input initialText={selectedStudent?.full_name.split(" ")[1]} type={"Текст"} setInputValue={setNameReg} inputPlaceholder='Имя' isLabel={false} />
+                  </form>
 
-        {/* Редактирование ученика */}
-        <div className={`${activeStudentButtonId ? 'block' : 'hidden'} flex h-full flex-col w-full items-center justify-between`}>
-            <div className={`${activeStudentButtonId ? 'block' : 'hidden'} pl-[15px] pr-[15px] h-[75%] w-full flex flex-col forms gap-8 mt-[45px]`}>
-                <form className='flex items-center justify-between'>
-                    <span>Класс: </span>
-                    <Input initialText={selectedStudent?.classname} type={"Текст"} setInputValue={setClassReg} inputPlaceholder='Класс' isLabel={false} />
-                </form>
+                  <form className='flex items-center justify-between'>
+                      <span>Отчество: </span>
+                      <Input initialText={selectedStudent?.full_name.split(" ")[2]} type={"Текст"} setInputValue={setPatronymicReg} inputPlaceholder='Отчество' isLabel={false} />
+                  </form>
 
-                <form className='flex items-center justify-between'>
-                    <span>Фамилия: </span>
-                    <Input initialText={selectedStudent?.full_name.split(" ")[0]} type={"Текст"} setInputValue={setSurnameReg} inputPlaceholder='Фамилия' isLabel={false} />
-                </form>
+                  <form className='flex items-center justify-between'>
+                      <span>Логин: </span>
+                      <Input initialText={selectedStudent?.login} type={"Текст"} setInputValue={setLoginReg} inputPlaceholder='Логин' isLabel={false} />
+                  </form>
 
-                <form className='flex items-center justify-between'>
-                    <span>Имя: </span>
-                    <Input initialText={selectedStudent?.full_name.split(" ")[1]} type={"Текст"} setInputValue={setNameReg} inputPlaceholder='Имя' isLabel={false} />
-                </form>
+                  <form className='flex items-center justify-between'>
+                      <span>Пароль: </span>
+                      <Input type={"Текст"} initialText={passwordReg} setInputValue={setPasswordReg} inputPlaceholder='Пароль' isLabel={false} />
+                  </form>
+              </div>
 
-                <form className='flex items-center justify-between'>
-                    <span>Отчество: </span>
-                    <Input initialText={selectedStudent?.full_name.split(" ")[2]} type={"Текст"} setInputValue={setPatronymicReg} inputPlaceholder='Отчество' isLabel={false} />
-                </form>
-
-                <form className='flex items-center justify-between'>
-                    <span>Логин: </span>
-                    <Input initialText={selectedStudent?.login} type={"Текст"} setInputValue={setLoginReg} inputPlaceholder='Логин' isLabel={false} />
-                </form>
-
-                <form className='flex items-center justify-between'>
-                    <span>Пароль: </span>
-                    <Input type={"Текст"} initialText={passwordReg} setInputValue={setPasswordReg} inputPlaceholder='Пароль' isLabel={false} />
-                </form>
-            </div>
-
-            <div className={`flex flex-col gap-[20px] w-[90%] ${activeClassButtonId ? `block` : `hidden`}`}>
-                <div className="flex w-full justify-between buttons mb-5">
-                    <button onClick={saveChangesStudent}>Сохранить</button>
-                    <button onClick={() => {setActiveStudentButtonId(null)}}>Отменить</button>
-                </div>
-            </div>  
-        </div>
-    </div>
+              <div className={`flex flex-col gap-[20px] w-[90%] ${activeClassButtonId ? `block` : `hidden`}`}>
+                  <div className="flex w-full justify-between buttons mb-5">
+                      <button onClick={saveChangesStudent}>Сохранить</button>
+                      <button onClick={() => { setActiveStudentButtonId(null) }}>Отменить</button>
+                  </div>
+              </div>
+          </div>
+      </div>
   )
 }
 

@@ -199,7 +199,6 @@ class Database{
         try {
             const studentRoleid = (await this.db.query(`SELECT id FROM "Roles" WHERE name='Ученик'`)).rows[0].id;
             await this.db.query(`INSERT INTO "Users"("full_name", "id_role", "id_class") VALUES ($1, $2, $3)`, [fullName, studentRoleid, selectedClassId]);
-            console.log(`Фио: ${fullName}`);
             
         } catch (error) {
             console.log(`Ошибка добавления ученика в БД: ${error}`);
@@ -272,7 +271,6 @@ class Database{
 
             const hashedPassword = await bcrypt.hash(updatedStudent.password, salt);
 
-            console.log(`Айди updated user: ${updatedStudent.id}`);
             const idUsersData = ((await this.db.query(`SELECT id_usersdata from "Users" WHERE id=$1`, [updatedStudent.id])).rows[0]).id_usersdata;
            
             if (updatedStudent.login && updatedStudent.password){
@@ -419,9 +417,7 @@ class Database{
 
     deleteLesson = async (idLesson: number) => {
         try {
-            console.log(3);
             await this.db.query(`DELETE FROM "Lessons" WHERE id=$1`, [idLesson]);
-            console.log(4);
         } catch (error) {
             console.log(`Ошибка удаления урока в БД: ${error}`);
             
@@ -460,7 +456,6 @@ class Database{
             const teacherId = (await this.db.query(`SELECT id FROM "Roles" WHERE name='Учитель'`)).rows[0].id;
             const resultWithUsersData = (await this.db.query(`SELECT "Users".id, full_name, "UsersData".login FROM "Users" LEFT JOIN "UsersData" ON "Users".id_usersdata = "UsersData".id WHERE "Users".id_role=$1`,[teacherId])).rows;
 
-            console.log(resultWithUsersData);
             return resultWithUsersData;
         } catch (error) {
             console.log(`Ошибка получения учителей в БД: ${error}`);
@@ -496,24 +491,19 @@ class Database{
             //Если нет id_usersdata
             if (!user.id_usersdata){
 
-                console.log(1);
                 //Если логин и пароль не вписали, значит обновляем только ФИО
                 if ((login == "" || !login) && (password == "" || !password)){
-                    console.log(2);
                     await this.db.query(`UPDATE "Users" SET full_name=$1 WHERE id=$2`, [fullName, idTeacher]);
-                    console.log(3);
                 }
 
 
                 //Если логин и пароль вписали, то создаем UsersData и связаываем его с Users
                 else if (login != "" && password != ""){
-                    console.log(4);
                     const hashedPassword = await bcrypt.hash(password, salt);
-                    console.log(5);
                     const idInseredUsersData =  (await this.db.query(`INSERT INTO "UsersData" ("login", "password") VALUES ($1, $2) RETURNING "id"`, [login, hashedPassword])).rows[0].id;
-                    console.log(6);
+
                     await this.db.query(`UPDATE "Users" SET id_usersdata=$1 WHERE id=$2`, [idInseredUsersData, idTeacher]);
-                    console.log(7);
+
                 }
             }
 

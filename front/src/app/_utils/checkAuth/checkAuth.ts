@@ -1,3 +1,5 @@
+import { fetchWithAuth } from "../fetchWithAuth/fetchWithAuth";
+
 const checkAuth = async (accessToken: string | null, refreshToken: string | null): Promise<{
     accessToken: string | undefined,
     refreshToken: string | undefined,
@@ -10,7 +12,7 @@ const checkAuth = async (accessToken: string | null, refreshToken: string | null
     }
 }>  => {
     //Делаем запрос на сервер с передачей токенов
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/check-auth`,{
+    const response = await fetchWithAuth("http://localhost:3010/check-auth",{
         method: "POST",
         headers: {
             "Content-Type": "application/json"

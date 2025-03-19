@@ -87,19 +87,10 @@ const Schedule = () => {
         }
 
     }
-
-    useEffect(() => {
-        updateSchedule();
-    }, [scheduleClassName]);
-
-    useEffect(() => {
-        updateSchedule();
-    }, [dates]);
     
     useEffect(() => {
         updateSchedule();
-        console.log(555);
-    }, [isLessonInformation]);
+    }, [isLessonInformation, dates, scheduleClassName ]);
 
     const getLessonStatus = (lessonDate: Date, lessonTime: string) => {
         const now = new Date(); // Текущее время
@@ -124,7 +115,7 @@ const Schedule = () => {
     };
 
     return (
-        <div className={`w-full h-full`}>
+        <div className={`w-full h-full schedule`}>
             <AddNewLesson 
             isAddNewLesson={isAddNewLesson}
             setIsAddNewLesson={setIsAddNewLesson}
@@ -175,7 +166,7 @@ const Schedule = () => {
 
                                             const lessonStatus = getLessonStatus(lesson.lesson_date, lesson.lesson_start_time);
                                             return(
-                                                <div className={`${lessonStatus != "закончен" ? "bg-blue-600 text-white" : "bg-blue-200"} flex items-center justify-center text-black rounded-[10px] w-[calc(100%-10px)] h-[calc(100%-10px)] m-auto `} 
+                                                <div className={`${lessonStatus != "закончен" ? "bg-blue-600 text-white" : "bg-blue-200"} flex items-center justify-center text-black rounded-[10px] max-w-[calc(100%-10px)] overflow-hidden h-[calc(100%-10px)] m-auto `} 
                                                 key={lesson.id}
                                                 onClick={(event) => divLessonCliCkHandle(event)}
                                                 data-key={lesson.id}>{lesson.name}</div>

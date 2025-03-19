@@ -88,7 +88,7 @@ const Calendar: React.FC = () => {
 
 
   return (
-    <div className="w-[280px] h-[280px] p-2">
+    <div className="xl:w-[280px] xl:h-[280px] w-[250px] h-[250px] p-2">
       <div className="flex justify-between mb-2">
         <button onClick={handlePrevMonth} className="text-xs">
           <Image src={arrow} alt='' className='rotate-[180deg] w-3' />

@@ -16,7 +16,6 @@ const EditClass = ({isEditClass, setIsEditClass, setClassName, selectedClassId} 
     const [updatedClassName, setUpdatedClassName] = useState<string>();
 
     const saveClassName = async () => {
-        console.log(selectedClassId);
 
         const response = await fetchWithAuth("/update-classname", {
             method: "POST",

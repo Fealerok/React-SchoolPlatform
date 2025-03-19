@@ -56,7 +56,7 @@ const AddStudent = ({
     }
 
   return (
-     <div className={`${isAddStudent ? 'block' : 'hidden'} flex flex-col items-center border-[3px] border-border-blocks absolute top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] right-0 bottom-0 w-[30%] h-[60%] bg-additional-bg`}>
+     <div className={`${isAddStudent ? 'block' : 'hidden'} flex flex-col items-center border-[3px] border-border-blocks absolute top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] right-0 bottom-0 w-[700px] h-[60%] bg-additional-bg`}>
         <span className='mt-[35px] text-xl'>Введите ФИО ученика:</span>
 
         <div className="w-[80%] mt-[50px] flex flex-col gap-[50px]">
@@ -78,11 +78,11 @@ const AddStudent = ({
 
         <div className="flex justify-between w-[70%] h-full small_buttons translate-y-[60%]">
             <button 
-            className='pl-[15px] h-[30px] pr-[15px]' 
+            className='pl-[15px] h-[30px] pr-[15px] w-[40%]' 
             onClick={addStudentHandle}>Сохранить</button>
 
             <button 
-            className='pl-[15px] h-[30px] pr-[15px]' 
+            className='pl-[15px] h-[30px] pr-[15px] w-[40%]' 
             onClick={() => setIsAddStudent(false)}>Отменить</button>
         </div>
 

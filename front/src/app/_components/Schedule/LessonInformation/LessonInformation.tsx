@@ -83,6 +83,7 @@ const LessonInformation = ({
             getTeachers();
         }
         setIsEdit(!isEdit);
+
         
     }
 
@@ -116,14 +117,15 @@ const LessonInformation = ({
             })
         });
 
+
         if (!response) {
             router.push("/auth");
             location.reload();
             return;
         }
 
+       
         setIsEdit(false);
-        
 
     }
 
@@ -177,8 +179,6 @@ const LessonInformation = ({
             location.reload();
         }
         else{
-            console.log(response.lessonInformation);
-
             setLessonInformation(response.lessonInformation);
         }
     }
@@ -194,32 +194,26 @@ const LessonInformation = ({
             })
         });
 
-        console.log(response);
         if (!response) {
             router.push("/auth");
             location.reload()
         }
         else{
-            console.log(5454);
             await setIsLessonInformation(false);
+            alert("Урок удалён.");
         }
     }
 
     useEffect(() => {
-        console.log(isLessonInformation)
         //Если окно открыто, то получаем информацию урока по его Id
 
         if (isLessonInformation) getLessonInformation();
     }, [isLessonInformation]);
 
 
-    useEffect(() => {
-        console.log(newLessonName);
-    }, [newLessonName]);
-
     if (lessonInformation){
         return (
-            <div className={`${isLessonInformation ? "block" : "hidden"} border-[3px] flex justify-between border-border-blocks absolute top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] right-0 bottom-0 w-[50%] h-[50%] bg-additional-bg`}>
+            <div className={`${isLessonInformation ? "block" : "hidden"} border-[3px] flex justify-between border-border-blocks absolute top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] right-0 bottom-0 w-[700px] h-[50%] bg-additional-bg`}>
                 <div className="w-1/2 flex flex-col p-[40px] gap-[20px]">
         
                     <div className="flex flex-col gap-[20px]">

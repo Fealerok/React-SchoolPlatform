@@ -50,7 +50,6 @@ router.post("/auth", async (req: Request, res: Response): Promise<any> => {
     let dbResponse = await db.authUser(login, password);
 
     if (dbResponse.isAuth) {
-        console.log(dbResponse.user);
         const accessToken = JWTMethods.createAccessToken(dbResponse.user);
         const refreshToken = JWTMethods.createRefreshToken(dbResponse.user);
 
@@ -80,7 +79,6 @@ router.post("/check-auth", (req: Request, res: Response): any => {
         jwt.verify(accessToken, accessTokenSecret, async (err: VerifyErrors | null, decoded_access: any) => {
             if (err) return res.sendStatus(401);
 
-            console.log(decoded_access);
             return res.status(200).json({
                 isAuth: true,
                 user: decoded_access
@@ -118,7 +116,6 @@ router.post("/add-new-class",checkTokens, async (req: Request, res: Response): P
     try {
         const nameNewClass = req.body.name;
 
-        console.log(nameNewClass);
         await db.addNewClass(nameNewClass);
 
         return res.status(200).json({ message: "Успешно" });
@@ -217,8 +214,6 @@ router.post("/add-new-lesson",checkTokens, async (req: Request, res: Response): 
 router.post("/check-availability-class",checkTokens, async (req: Request, res: Response): Promise<any> => {
     try {
         const { className } = req.body;
-
-        console.log(className);
         
         const result = await db.checkAvailabilityClass(className);
 
@@ -266,9 +261,8 @@ router.post("/update-lesson", checkTokens, async (req: Request, res: Response): 
     try {
         const {lessonInformation} = req.body;
 
-        console.log(lessonInformation)
         await db.updateLesson(lessonInformation);
-        return res.sendStatus(200);
+        return res.status(200).json({message: "Успешно"});
     } catch (error) {
         console.log(`Ошибка обновления данных урока на сервере: ${error}`);
 
@@ -283,7 +277,6 @@ router.delete("/delete-lesson", checkTokens, async (req: Request, res: Response)
         
         await db.deleteLesson(idLesson);
 
-        console.log(2);
         return res.status(200).json({message: "Успешно"});
     } catch (error) {
         console.log(`Ошибка удаления урока на сервере: ${error}`);
@@ -362,8 +355,6 @@ router.post("/update-teacher", async (req: Request, res: Response): Promise<any>
     try {
         const {idTeacher, fullName, login, password} = req.body;
 
-        console.log(req.body);
-
         await db.updateTeacher(idTeacher, fullName, login, password);
 
         
@@ -391,8 +382,6 @@ router.post("/get-tickets", async (req: Request, res: Response): Promise<any> =>
     try {
         const tickets = await db.getTickets();
 
-        console.log(tickets);
-
         return res.status(200).json({tickets});
     } catch (error) {
         console.log(`Ошибка получения тикетов на сервере: ${error}`);
@@ -403,8 +392,6 @@ router.post("/get-tickets", async (req: Request, res: Response): Promise<any> =>
 router.post("/delete-ticket", async (req: Request, res: Response): Promise<any> => {
     try {
         const {idTicket} = req.body;
-
-        console.log(idTicket);
         await db.deleteTicket(idTicket);
         return res.status(200).json({message: "Успешно"});
     } catch (error) {
@@ -412,15 +399,4 @@ router.post("/delete-ticket", async (req: Request, res: Response): Promise<any> 
         return res.sendStatus(500);
     }
 });
-
-router.get("/get-data", async (req: Request, res: Response): Promise<any> => {
-    try {
-        
-        return res.status(200).json({message: "Успешно"});
-    } catch (error) {
-        return res.sendStatus(500);
-    }
-});
-
 module.exports = router;
-export default router;

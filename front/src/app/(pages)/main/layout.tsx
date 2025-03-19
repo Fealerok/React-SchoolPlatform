@@ -34,20 +34,19 @@ const MainLayout = ({
     }, [])
 
     const onProfileButtonClick = () => {
+        setIsTicketToSupport(false);
         setIsProfile(true);
     }
 
     const onTicketToSupportClick = () => {
+        setIsProfile(false);
         setIsTicketToSupport(true);
     }
 
     const startFunction = async () => {
-        console.log(123);
         const response = await fetchWithAuth("/check-auth", {
             method: "POST"
         });
-        console.log(response);
-        console.log(323);
         if (!response?.user){
             router.push("/auth");
         }
@@ -55,7 +54,6 @@ const MainLayout = ({
         else{
             console.log();
             await setUser(response.user);
-            console.log(response.user);
             setAsideType("Главная");
         }
     }
@@ -75,14 +73,14 @@ const MainLayout = ({
 
         <header className='h-20 border-b-[3px] border-border-blocks flex justify-between items-center'>
               <div className="flex items-center">
-                  <div className="w-80 flex justify-center items-center">
-                      <Image src={logo} alt='' />
+                  <div className="xl:w-80 w-56 flex justify-center items-center">
+                      <Image className='w-[60%]' src={logo} alt='' />
                   </div>
 
-                  <div className="flex small_buttons gap-[20px]">
+                  <div className="flex small_buttons gap-[20px] text-[12px] xl:text-[18px]">
                       <button 
                       className='h-[40px] pl-[10px] pr-[10px]'
-                      onClick={() => {setIsTicketToSupport(true)}}>Обратиться в техподдержку</button>
+                      onClick={onTicketToSupportClick}>Обратиться в техподдержку</button>
 
                       <button
                           className={`${user?.role == "Техподдержка" ? "block" : "hidden"} h-[40px] pl-[10px] pr-[10px]`}
@@ -98,7 +96,7 @@ const MainLayout = ({
             </button>
             
         </header>
-        <div className={`${isProfile || isTicketToSupport ? "pointer-events-none" : ""} flex h-[calc(100%-80px)] w-full relative`}>
+        <div className={`${isProfile || isTicketToSupport ? "pointer-events-none" : ""} flex h-[calc(100%-80px)] w-full relative justify-end`}>
             <Aside type={asideType} />
             {children}
         </div>

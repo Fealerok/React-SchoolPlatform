@@ -31,7 +31,6 @@ const AddClass = ({isAddClass, setIsAddClass, setNewClass} : IAddClass) => {
         });
 
         if (response.ok) setNewClass(nameClass);
-        console.log(response)
     }
 
     const addButtonHandle = () => {
@@ -45,7 +44,7 @@ const AddClass = ({isAddClass, setIsAddClass, setNewClass} : IAddClass) => {
     }
 
   return (
-    <div className={`${isAddClass ? "block" : "hidden"} flex flex-col items-center border-[3px] border-border-blocks absolute top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] right-0 bottom-0 w-[30%] h-[40%] bg-additional-bg`}>
+    <div className={`${isAddClass ? "block" : "hidden"} flex flex-col items-center border-[3px] border-border-blocks absolute top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] right-0 bottom-0 w-[500px] h-[40%] bg-additional-bg`}>
         <span className='mt-[35px] text-xl'>Введите номер и название класса:</span>
 
         <div className="w-[80%] mt-[15px]">

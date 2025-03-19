@@ -33,3 +33,41 @@
   color: white !important;
   background-color: var(--dark-blue) !important;
 }
+
+.aside_opened{
+  left: 0%;
+}
+
+.aside_hidden{
+  left: -240px;
+}
+
+.hide_aside_button{
+  display: none;
+}
+
+.ticket_list{
+  width: 100%;
+}
+
+@media (max-width: 1400px) {
+  .aside{
+    position: absolute;
+  }
+
+  .hide_aside_button{
+    display: block;
+  }
+
+  .classes_list, .schedule, .teacher_list, .ticket_list{
+    width: calc(100% - 90px) !important;
+  }
+}
+
+@media (min-width: 1401px) {
+  .hide_aside_button{
+    display: none;
+  }
+
+  
+}

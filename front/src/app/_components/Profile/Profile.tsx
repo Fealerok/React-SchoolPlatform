@@ -52,7 +52,7 @@ const Profile = ({
   }, [isProfile]);
 
   return (
-    <div className={`${isProfile ? "block" : "hidden"} bg-additional-bg border-[3px] flex flex-col justify-center border-border-blocks absolute top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] w-[30%] h-[50%] z-[10]`}>
+    <div className={`${isProfile ? "block" : "hidden"} bg-additional-bg border-[3px] flex flex-col justify-center border-border-blocks absolute top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] min-w-[700px] h-[50%] z-[10]`}>
       <div className="w-full p-[30px] flex flex-col gap-[20px]">
         <p>ФИО: {user?.fullName}</p>
         <p>Роль: {user?.role}</p>

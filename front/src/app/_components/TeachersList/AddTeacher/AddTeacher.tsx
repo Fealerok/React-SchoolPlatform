@@ -49,7 +49,7 @@ const AddTeacher = ({
     }
 
   return (
-    <div className={`${isAddTeacher ? 'block' : 'hidden'} flex flex-col items-center border-[3px] border-border-blocks absolute top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] right-0 bottom-0 w-[30%] h-[60%] bg-additional-bg`}>
+    <div className={`${isAddTeacher ? 'block' : 'hidden'} flex flex-col items-center border-[3px] border-border-blocks absolute top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] right-0 bottom-0 w-[700px] h-[60%] bg-additional-bg z-30`}>
         <span className='mt-[35px] text-xl'>Введите ФИО учителя:</span>
 
         <div className="w-[80%] mt-[50px] flex flex-col gap-[50px]">

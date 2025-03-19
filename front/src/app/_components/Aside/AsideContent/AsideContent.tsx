@@ -99,7 +99,7 @@ const AsideContent = ({
                     
                 </div>
                     
-                <div className={`${asideType == "Расписание классы" || asideType == "Главная" ? "block" : "hidden"} w-[280px] h-[300px] rounded-6 border-[3px] border-border-blocks mt-auto mb-auto`}>
+                <div className={`${asideType == "Расписание классы" || asideType == "Главная" ? "block" : "hidden"} xl:w-[280px] xl:h-[300px] w-[250px] h-[300px] rounded-6 border-[3px] border-border-blocks mt-auto mb-auto`}>
                     <Calendar />
                 </div>
             </>

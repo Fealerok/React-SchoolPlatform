@@ -50,7 +50,7 @@ const TicketList = () => {
 
     if (tickets?.length != 0){
         return (
-            <>
+            <div className='ticket_list'>
                 <OpenedTicket
                     setIsOpenedTicket={setIsOpenedTicket}
                     isOpenedTicket={isOpenedTicket}
@@ -70,7 +70,7 @@ const TicketList = () => {
                             <p>Тема обращения: {ticket.name_request}</p>
                         </button>)}
                 </div>
-            </>
+            </div>
 
             
            

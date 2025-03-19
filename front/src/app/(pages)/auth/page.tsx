@@ -7,7 +7,6 @@ import isValid from '../../_utils/validation/authValidation'
 import { AuthContext } from '../../_context/authContext'
 import { setTokens } from '@/app/_utils/localStorage/localStorage'
 import { useRouter } from 'next/navigation'
-import { fetchWithAuth } from '@/app/_utils/fetchWithAuth/fetchWithAuth'
 
 interface IInputValue{
   type: string,
@@ -29,7 +28,7 @@ const AuthPage = () => {
       alert(isValidResult[0]);
     }
     else{
-      const response = await fetchWithAuth("/auth", {
+      const response = await fetch("http://localhost:3010/auth", {
         method: "POST",
         headers:{
           "Content-Type": "application/json",
@@ -37,12 +36,12 @@ const AuthPage = () => {
         body: JSON.stringify({
           login,
           password
-        }),
+        })
       });
 
       //Если успешная аутентификация, выводим данные
-      if (response){
-        const responseData = response;
+      if (response.ok){
+        const responseData = await response.json();
 
         //Записываем авторизированного юзера в контекст
         setUser(responseData.user);
@@ -51,6 +50,9 @@ const AuthPage = () => {
         setTokens(responseData.accessToken, responseData.refreshToken);
         router.push("/main");
       }
+
+      //Если неуспешная аутентификация, то выводим сообщение ошибки
+      else(response.json().then(resp => alert(resp.errorMessage)));
     }
     
   }

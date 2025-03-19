@@ -3,11 +3,11 @@ import { getTokens } from "../localStorage/localStorage"
 interface IFetchOptions {
     method?: string; // Метод запроса (GET, POST и т.д.)
     headers?: Record<string, string>; // Заголовки запроса
-    body?: BodyInit; // Тело запроса (например, JSON, FormData),
+    body?: BodyInit; // Тело запроса (например, JSON, FormData)
     // Другие свойства, которые могут быть в `options`
 }
 
-const baseUrl = "https://react-schoolplatform-production.up.railway.app";
+const baseUrl = "http://localhost:3010"
 
 const updateAccessToken = async () => {
     const refreshToken = localStorage.getItem("refreshToken");
@@ -17,7 +17,7 @@ const updateAccessToken = async () => {
         headers:{
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({refreshToken}),
+        body: JSON.stringify({refreshToken})
     });
 
 
@@ -40,37 +40,30 @@ export const fetchWithAuth = async (url: string, options: IFetchOptions = {}) =>
     const headers = {
         ...options.headers,
 
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`
     }
 
     const fetchOptions = {
         ...options,
-        headers,
+        headers
     }
 
-    
-    try {
-        let response = await fetch(`${baseUrl}${url}`, fetchOptions);
+    let response = await fetch(`${baseUrl}${url}`, fetchOptions);
 
-        if (response.status == 401){
-            accessToken = await updateAccessToken();
-    
-            if (!accessToken) return;
-            headers.Authorization = `Bearer ${accessToken}`;
-            fetchOptions.headers = headers;
-            response = await fetch(`${baseUrl}${url}`, fetchOptions);     
-        }
-    
-    
-        if (!response.ok) {
-            return response.json();
-        }
-    
+    if (response.status == 401){
+        accessToken = await updateAccessToken();
+
+        if (!accessToken) return;
+        headers.Authorization = `Bearer ${accessToken}`;
+        fetchOptions.headers = headers;
+        response = await fetch(`${baseUrl}${url}`, fetchOptions);     
+    }
+
+
+    if (!response.ok) {
         return response.json();
-    } catch (error) {
-        console.log(`Ошибка выполнения запроса: ${error}`);
-        
     }
-   
+
+    return response.json();
 
 }

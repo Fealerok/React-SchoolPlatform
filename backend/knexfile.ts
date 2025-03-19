@@ -19,17 +19,6 @@ const config: { [key: string]: Knex.Config} = {
           directory: "./src/seeds"
         },
       },
-
-      production: {
-        client: "pg",
-        connection: process.env.DATABASE_URL, // Используем переменную окружения DATABASE_URL
-        migrations: {
-            directory: "./src/migrations"
-        },
-        seeds: {
-            directory: "./src/seeds"
-        },
-    }
 }
 
 export default config;
