@@ -39,10 +39,11 @@ const OpenedTicket = ({
         }
 
         setIsOpenedTicket(false);
+        alert(response.message);
     }
 
     return (
-        <div className={`${isOpenedTicket ? "block" : "hidden"} absolute flex flex-col justify-between p-[30px] items-center border-[3px] border-border-blocks top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] right-0 bottom-0 w-[700px] bg-additional-bg`}>
+        <div className={`${isOpenedTicket ? "block" : "hidden"} absolute flex flex-col justify-between p-[30px] items-center border-[3px] border-border-blocks top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] right-0 bottom-0 w-[700px] bg-additional-bg min-h-[500px]`}>
             <div className="flex flex-col items-center text-2xl text-center gap-[20px] w-full">
                 <p>ФИО отправителя: {ticket?.full_name}</p>
 

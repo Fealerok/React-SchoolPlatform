@@ -1,10 +1,11 @@
 "use client"
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import Input from '@/app/_ui/Input/Input'
 import { AuthContext } from '@/app/_context/authContext'
 import { fetchWithAuth } from '@/app/_utils/fetchWithAuth/fetchWithAuth'
 import { useRouter } from 'next/navigation'
 import { ScheduleContext } from '@/app/_context/scheduleContext'
+import CustomSelect from '@/app/_ui/CustomSelect/CustomSelect'
 
 interface IAddNewLesson{
   isAddNewLesson: boolean,
@@ -26,12 +27,18 @@ const AddNewLesson = ({
   const [className, setClassName] = useState<string>();
   const {user} = useContext(AuthContext);
   const {scheduleClassName} = useContext(ScheduleContext);
+  const [teachers, setTeachers] = useState([]);
+
+  const selectRef = useRef<HTMLSelectElement>(null);
+  
+  const [selectValue, setSelectValue] = useState("Список учителей");
+  const [selectedTeacherId, setSelectedTeacherId] = useState<number>();
 
   const router = useRouter();
 
   const addNewLesson = async () => {
-    if (lessonName?.trim() == "" || className?.trim() == ""){
-      alert("Не введёно название урока или класса.");
+    if (lessonName?.trim() == "" || className?.trim() == "" || selectValue == "Список учителей"){
+      alert("Не введёно название урока, не выбран учитель или не выбран класс.");
       return
     }
     
@@ -54,7 +61,8 @@ const AddNewLesson = ({
         selectedTime: selectedTime,
         selectedDate: selectedDate,
         idUser: user?.id,
-        className: scheduleClassName
+        className: scheduleClassName,
+        teacherId: selectedTeacherId
       })
     });
 
@@ -87,6 +95,33 @@ const AddNewLesson = ({
   }
 
 
+  const getTeachers = async () => {
+    const response = await fetchWithAuth("/get-teachers", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    if (!response) router.push("/auth");
+    else{
+      setTeachers(response.teachers);
+      
+    }
+
+
+  }
+
+  const changeLessonTeacher = (value: {id: number, full_name: string}) => {
+    setSelectValue(value.full_name);
+    setSelectedTeacherId(value.id);
+  }
+
+  useEffect(() => {
+    getTeachers();
+  }, [isAddNewLesson])
+
+
   return (
     <div className={`${isAddNewLesson ? "block" : "hidden"} text-2xl pr-[25px] pl-[25px] flex flex-col absolute w-[700px] border-[3px] border-border-blocks bg-additional-bg top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%]`}>
       <span className='mt-[25px]'>Выбранная дата: {`${selectedDateString}`} </span>
@@ -100,6 +135,9 @@ const AddNewLesson = ({
         type={"Текст"}
         isLabel={false}></Input>
       </form>
+
+      <span className='mt-[25px]'>Выберите учителя:</span>
+      <CustomSelect options={teachers} onChange={changeLessonTeacher} value={selectValue}></CustomSelect>
 
     
 

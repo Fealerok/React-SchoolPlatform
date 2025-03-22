@@ -116,9 +116,13 @@ router.post("/add-new-class",checkTokens, async (req: Request, res: Response): P
     try {
         const nameNewClass = req.body.name;
 
-        await db.addNewClass(nameNewClass);
+        const result = await db.addNewClass(nameNewClass);
 
-        return res.status(200).json({ message: "Успешно" });
+        if (result == "Класс уже существует"){
+            return res.status(500).json({ message: result });
+        }
+
+        return res.status(200).json({ message: "Класс добавлен" });
     } catch (error) {
         return res.status(500).json({ message: "Ошибка 500" });
     }
@@ -132,7 +136,7 @@ router.delete("/delete-class",checkTokens, async (req: Request, res: Response): 
 
         await db.deleteClass(idSelectedClass);
 
-        return res.status(200).json({ message: "Успешно!" });
+        return res.status(200).json({ message: "Класс удален" });
     } catch (error) {
         return res.status(500).json({ message: "Ошибка 500" });
     }
@@ -148,7 +152,7 @@ router.post("/add-student-in-class",checkTokens, async (req: Request, res: Respo
 
         await db.addStudentInClass(fullName, selectedClassId);
 
-        return res.status(200).json({ message: "Успешно" });
+        return res.status(200).json({ message: "Ученик добавлен" });
     } catch (error) {
         return res.status(500).json({ message: "Ошибка 500" });
     }
@@ -160,7 +164,7 @@ router.delete("/delete-student",checkTokens, async (req: Request, res: Response)
 
         await db.deleteStudent(selectedStudentId);
 
-        return res.status(200).json({ message: "Успешно" });
+        return res.status(200).json({ message: "Ученик удален" });
     } catch (error) {
         return res.status(500).json({ message: "Ошибка 500" });
     }
@@ -177,7 +181,7 @@ router.post("/update-student",checkTokens, async (req: Request, res: Response): 
             return res.status(501).json({ message: dbResponse[1] });
         }
 
-        return res.status(200).json({ message: "Успешно" });
+        return res.status(200).json({ message: "Данные ученика сохранены" });
     } catch (error) {
         return res.status(500).json({ message: "Ошибка 500" });
     }
@@ -197,12 +201,12 @@ router.post("/update-classname",checkTokens, async (req: Request, res: Response)
 
 router.post("/add-new-lesson",checkTokens, async (req: Request, res: Response): Promise<any> => {
     try {
-        const { newLessonName, selectedTime, className } = req.body;
+        const { newLessonName, selectedTime, className, teacherId } = req.body;
         const utcDate = new Date(req.body.selectedDate); // Преобразуем строку в объект Date
         const localDate = new Date(utcDate.getTime() - utcDate.getTimezoneOffset() * 60000);
 
         
-       await db.addNewLesson(newLessonName, selectedTime, localDate, className);
+       await db.addNewLesson(newLessonName, selectedTime, localDate, className, teacherId);
 
         return res.status(200).json({message: "Успешно"});
     } catch (error) {
@@ -227,7 +231,7 @@ router.post("/check-availability-class",checkTokens, async (req: Request, res: R
 
 router.post("/get-lessons",checkTokens, async(req: Request, res: Response): Promise<any> => {
     try {
-        const {dates, scheduleClassName} = req.body;
+        const {dates, scheduleClassName, userId} = req.body;
 
         for (let i = 0; i < dates.length; i++){
             let utcDate = new Date(dates[i]);
@@ -235,7 +239,8 @@ router.post("/get-lessons",checkTokens, async(req: Request, res: Response): Prom
             
         }
 
-        const lessons = await db.getLessonsBetweenDates(dates, scheduleClassName);
+        console.log("Роут: ", userId);
+        const lessons = await db.getLessonsBetweenDates(dates, scheduleClassName, userId);
 
         return res.status(200).json({lessons});
     } catch (error) {
@@ -329,7 +334,7 @@ router.post("/add-new-teacher", async (req: Request, res: Response): Promise<any
         await db.addTeacher(surname, name, patronymic);
 
         
-        return res.status(200).json({message: "Успешно"});
+        return res.status(200).json({message: "Учитель добавлен"});
     } catch (error) {
         console.log(`Ошибка добавления учителя на сервере: ${error}`);
         return res.sendStatus(500);
@@ -343,7 +348,7 @@ router.delete("/delete-teacher", async (req: Request, res: Response): Promise<an
         await db.deleteTeacher(idTeacher);
 
         
-        return res.status(200).json({message: "Успешно"});
+        return res.status(200).json({message: "Учитель удален"});
     } catch (error) {
         console.log(`Ошибка добавления учителя на сервере: ${error}`);
         return res.sendStatus(500);
@@ -358,7 +363,7 @@ router.post("/update-teacher", async (req: Request, res: Response): Promise<any>
         await db.updateTeacher(idTeacher, fullName, login, password);
 
         
-        return res.status(200).json({message: "Успешно"});
+        return res.status(200).json({message: "Данные об учителе сохранены"});
     } catch (error) {
         console.log(`Ошибка добавления учителя на сервере: ${error}`);
         return res.sendStatus(500);
@@ -393,9 +398,64 @@ router.post("/delete-ticket", async (req: Request, res: Response): Promise<any> 
     try {
         const {idTicket} = req.body;
         await db.deleteTicket(idTicket);
-        return res.status(200).json({message: "Успешно"});
+        return res.status(200).json({message: "Заявка удалена"});
     } catch (error) {
         console.log(`Ошибка удаления тикета на сервере: ${error}`);
+        return res.sendStatus(500);
+    }
+});
+
+router.post("/add-new-admin", async (req: Request, res: Response): Promise<any> => {
+    try {
+        
+        const {surname, name, patronymic} = req.body;
+
+        await db.addAdmin(surname, name, patronymic);
+
+        
+        return res.status(200).json({message: "Администратор добавлен"});
+    } catch (error) {
+        console.log(`Ошибка добавления администратора на сервере: ${error}`);
+        return res.sendStatus(500);
+    }
+});
+
+router.delete("/delete-admin", async (req: Request, res: Response): Promise<any> => {
+    try {
+        const {idAdmin} = req.body;
+
+        await db.deleteAdmin(idAdmin);
+
+        
+        return res.status(200).json({message: "Администратор удален"});
+    } catch (error) {
+        console.log(`Ошибка добавления администратора на сервере: ${error}`);
+        return res.sendStatus(500);
+    }
+});
+
+router.post("/update-admin", async (req: Request, res: Response): Promise<any> => {
+    try {
+        const {idAdmin, fullName, login, password} = req.body;
+
+        await db.updateAdmin(idAdmin, fullName, login, password);
+
+        
+        return res.status(200).json({message: "Данные об Администраторе сохранены"});
+    } catch (error) {
+        console.log(`Ошибка добавления администратора на сервере: ${error}`);
+        return res.sendStatus(500);
+    }
+});
+
+router.post("/get-admins", async (req: Request, res: Response): Promise<any> => {
+    try {
+        
+        const admins = await db.getAdmins();
+
+        return res.status(200).json({admins});
+    } catch (error) {
+        console.log(`Ошибка получения учителей на сервере: ${error}`);
         return res.sendStatus(500);
     }
 });

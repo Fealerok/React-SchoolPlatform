@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Input from '@/app/_ui/Input/Input';
 import AddClass from './AddClass/AddClass';
 import "./ClassList.css";
@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import updateAccessToken from '@/app/_utils/checkAuth/updateAccessToken';
 import { fetchWithAuth } from '@/app/_utils/fetchWithAuth/fetchWithAuth';
 import { log } from 'console';
+import { AsideContext } from '@/app/_context/asideContext';
 
 interface IStudents{
     id: number,
@@ -22,6 +23,7 @@ interface IStudents{
 
 const ClassesList = () => {
 
+    const {setIsOpened, isOpened} = useContext(AsideContext);
     const [classes, setClasses] = useState<Array<{id: number, name: string}>>([])
     const [students, setStudents] = useState<Array<IStudents>>([]);
     const [activeClassButtonId, setActiveClassButtonId] = useState<number | null>();
@@ -75,6 +77,7 @@ const ClassesList = () => {
             getClasses();
             setActiveClassButtonId(null);
             setStudents([]);
+            alert(response.message);
         }
 
         
@@ -101,6 +104,7 @@ const ClassesList = () => {
         else{
             setActiveStudentButtonId(null);
             getStudentsInClass(activeClassButtonId);
+            alert(response.message);
         }
         
         
@@ -182,6 +186,7 @@ const ClassesList = () => {
         if (!response) router.push("/auth");
         else{
             getStudentsInClass(activeClassButtonId);
+            alert(response.message);
         }
 
     }
@@ -229,14 +234,18 @@ const ClassesList = () => {
 
 
   return (
-      <div className='flex justify-between w-full h-full border classes_list'>
+      <div className='flex justify-between w-full h-full border classes_list' onClick={() => {
+        if (window.innerWidth < 1367){
+            setIsOpened(false);
+        }
+      }}>
           <EditClass selectedClassId={activeClassButtonId} isEditClass={isEditClass} setIsEditClass={setIsEditClass} setClassName={setClassName}></EditClass>
           <AddClass setNewClass={setNewClass} isAddClass={isAddClass} setIsAddClass={setIsAddClass}></AddClass>
           <AddStudent selectedClassId={activeClassButtonId} setNewStudent={setNewStudent} isAddStudent={isAddStudent} setIsAddStudent={setIsAddStudent}></AddStudent>
 
           {/* Список классов */}
-          <div className={`${isAddClass || isEditClass || isAddStudent ? "pointer-events-none" : ""} w-[30%] overflow-hidden flex h-full border-r-[3px] border-border-blocks justify-between items-center flex-col`}>
-              <div className="mt-[45px] w-full flex flex-col small_buttons">
+          <div className={`${isAddClass || isEditClass || isAddStudent || (isOpened && window.innerWidth < 1367) ? "pointer-events-none" : ""} w-1/2 overflow-hidden flex h-full border-r-[3px] border-border-blocks justify-between items-center flex-col`}>
+              <div className="mt-[45px] w-full flex flex-col small_buttons overflow-y-scroll h-[80%]">
                   {classes?.length !== 0 ? classes?.map((classData) => {
                       return (
                           <button
@@ -262,8 +271,8 @@ const ClassesList = () => {
           </div>
 
           {/* Список учеников */}
-          <div className={`${isAddStudent || isEditClass ? 'pointer-events-none' : ""} w-[30%] flex h-full border-r-[3px] border-border-blocks flex-col small_buttons justify-between items-center`}>
-              <div className="mt-[45px] h-[75%] w-full flex flex-col small_buttons overflow-auto">
+          <div className={`${isAddStudent || isEditClass || (isOpened && window.innerWidth < 1367) ? 'pointer-events-none' : ""} w-1/2 flex h-full border-r-[3px] border-border-blocks flex-col small_buttons justify-between items-center`}>
+              <div className="mt-[45px] w-full flex flex-col small_buttons overflow-auto overflow-y-scroll h-[80%]">
                   {students?.length !== 0 ?
                       students?.map((student) => (
                           <button
@@ -286,7 +295,7 @@ const ClassesList = () => {
 
           {/* Редактирование ученика */}
           <div className={`${activeStudentButtonId ? 'block' : 'hidden'} w-[40%] flex h-full flex-col items-center justify-between`}>
-              <div className={`${activeStudentButtonId ? 'block' : 'hidden'} pl-[15px] pr-[15px] h-[75%] w-full flex flex-col forms gap-8 mt-[45px]`}>
+              <div className={`${activeStudentButtonId ? 'block' : 'hidden'} pl-[15px] pr-[15px] h-[75%] w-full flex flex-col forms gap-8 mt-[45px] overflow-y-scroll`}>
                   <form className='flex items-center justify-between'>
                       <span>Класс: </span>
                       <Input initialText={selectedStudent?.classname} type={"Текст"} setInputValue={setClassReg} inputPlaceholder='Класс' isLabel={false} />

@@ -1,11 +1,16 @@
 import { fetchWithAuth } from '@/app/_utils/fetchWithAuth/fetchWithAuth';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import OpenedTicket from '../OpenedTicket/OpenedTicket';
+import { AsideContext } from '@/app/_context/asideContext';
 
 const TicketList = () => {
 
     const [isOpenedTicket, setIsOpenedTicket] = useState(false);
+
+    const {isOpened} = useContext(AsideContext);
+
+    const {asideType} = useContext(AsideContext);
     const [openedTicket, setOpenedTicket] = useState<{
         id: number,
         full_name: string,
@@ -56,7 +61,7 @@ const TicketList = () => {
                     isOpenedTicket={isOpenedTicket}
                     ticket={openedTicket} />
 
-                <div className={`${isOpenedTicket ? "pointer-events-none" : ""} small_buttons w-full h-full flex flex-col gap-[20px] p-[20px] overflow-auto`}>
+                <div className={`${isOpenedTicket || (isOpened && window.innerWidth < 1367) ? "pointer-events-none" : ""} small_buttons w-full h-full flex flex-col gap-[20px] p-[20px] overflow-auto`}>
        
 
                     {tickets?.map(ticket =>

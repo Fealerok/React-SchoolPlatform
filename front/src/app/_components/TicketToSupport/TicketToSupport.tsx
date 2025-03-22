@@ -64,7 +64,7 @@ const TicketToSupport = ({
 
 
   return (
-    <div className={`${isTicketToSupport ? "block" : "hidden"} p-[20px] bg-additional-bg border-[3px] flex flex-col items-center justify-between  border-border-blocks absolute top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] w-[700px] h-[50%] z-[10]`}>
+    <div className={`${isTicketToSupport ? "block" : "hidden"} p-[20px] bg-additional-bg border-[3px] flex flex-col items-center justify-between  border-border-blocks absolute top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] w-[700px] h-[500px] z-[10]`}>
       <p className='text-2xl'>Обращение в техподдержку</p>
 
       <div className="flex flex-col w-full gap-[20px]">

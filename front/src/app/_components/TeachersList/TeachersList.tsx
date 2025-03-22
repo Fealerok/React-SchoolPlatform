@@ -3,11 +3,13 @@ import { DevBundlerService } from 'next/dist/server/lib/dev-bundler-service';
 import { useRouter } from 'next/navigation';
 import AddTeacher from './AddTeacher/AddTeacher';
 import Input from '@/app/_ui/Input/Input';
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import isValid from '@/app/_utils/validation/authValidation';
+import { AsideContext } from '@/app/_context/asideContext';
 
 const TeachersList = () => {
 
+  const {setIsOpened, isOpened} = useContext(AsideContext);
     const router = useRouter();
 
     const [isAddTeacher, setIsAddTeacher] = useState(false);
@@ -91,6 +93,7 @@ const TeachersList = () => {
             return;
         }
 
+        alert(response.message);
         setActiveTeacherId(null);
         getTeachers();
     }
@@ -133,7 +136,7 @@ const TeachersList = () => {
             location.reload();
             return;
         }
-
+        alert(response.message);
         getTeachers();
     }
 
@@ -145,24 +148,30 @@ const TeachersList = () => {
 
 
   return (
-    <div className='flex justify-between w-full teacher_list'>
+    <div className='flex justify-between w-full teacher_list' onClick={() => {
+      if (window.innerWidth < 1367){
+        setIsOpened(false);
+    }
+    }}>
     <AddTeacher 
       setIsAddTeacher={setIsAddTeacher}
       isAddTeacher={isAddTeacher}
     />
   
     {/* Список учителей */}
-    <div className={`${isAddTeacher ? "pointer-events-none" : ""} flex flex-col justify-between items-center w-[50%] border-r-[3px] border-border-blocks`}>
-      <div className="mt-[45px] h-[75%] w-full flex flex-col small_buttons overflow-auto">
-        {teachers?.map(teacher => (
-          <button
-            onClick={() => setActiveTeacherIdHandle(teacher.id)}
-            className={`mb-[32px] min-w-0 overflow-hidden flex-shrink-0 h-[50px] flex items-center pl-[15px] text-xl justify-start ml-5 mr-5 truncate ${activeTeacherId == teacher.id ? `active-button` : ``}`}
-            key={teacher.id}
-          >
-            {teacher.full_name}
-          </button>
-        ))}
+    <div className={`${isAddTeacher || (isOpened && window.innerWidth < 1367) ? "pointer-events-none" : ""} flex flex-col justify-between items-center w-[50%] border-r-[3px] border-border-blocks`}>
+      <div className="mt-[45px] overflow-y-scroll h-[80%] w-full flex flex-col small_buttons">
+        {teachers?.length !== 0 ? 
+            teachers?.map(teacher => (
+              <button
+                onClick={() => setActiveTeacherIdHandle(teacher.id)}
+                className={`mb-[32px] min-w-0 overflow-hidden flex-shrink-0 h-[50px] flex items-center pl-[15px] text-xl justify-start ml-5 mr-5 truncate ${activeTeacherId == teacher.id ? `active-button` : ``}`}
+                key={teacher.id}
+              >
+                {teacher.full_name}
+              </button>))
+         
+         : <span className='text-center'>Список пуст!</span>}
       </div>
   
       <div className={`flex flex-col gap-[20px] w-[90%]`}>
@@ -174,8 +183,8 @@ const TeachersList = () => {
     </div>
   
     {/* Блок с вводом данных */}
-    <div className={`${activeTeacherId ? "block" : "hidden"} ${isAddTeacher ? "pointer-events-none" : ""} flex h-full flex-col w-[70%] items-center justify-between`}>
-      <div className={`${activeTeacherId ? 'block' : 'hidden'} pl-[15px] pr-[15px] h-[75%] w-full flex flex-col forms gap-8 mt-[45px]`}>
+    <div className={`${activeTeacherId ? "block" : "hidden"} ${isAddTeacher || (isOpened && window.innerWidth < 1367) ? "pointer-events-none" : ""} flex h-full flex-col w-[70%] items-center justify-between`}>
+      <div className={`${activeTeacherId ? 'block' : 'hidden'} pl-[15px] pr-[15px] w-full flex flex-col forms gap-8 mt-[45px] h-[80%] overflow-y-scroll`}>
         <form className='flex items-center justify-between'>
           <span>Фамилия: </span>
           <Input initialText={selectedTeacher?.full_name.split(" ")[0]} type={"Текст"} setInputValue={setSurname} inputPlaceholder='Фамилия' isLabel={false} />

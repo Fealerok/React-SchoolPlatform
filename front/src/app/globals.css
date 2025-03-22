@@ -35,6 +35,7 @@
 }
 
 .aside_opened{
+  
   left: 0%;
 }
 
@@ -50,13 +51,29 @@
   width: 100%;
 }
 
-@media (max-width: 1400px) {
+
+@media (max-width: 1366px) {
   .aside{
     position: absolute;
   }
 
+  .aside_element{
+    font-size: 15px !important;
+    height: 35px !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  .aside_main_buttons{
+    gap: 15px !important;
+    margin-top: 15px !important;
+    overflow-y: scroll;
+  }
+
   .hide_aside_button{
     display: block;
+    font-size: 15px !important;
+    height: 35px !important;
   }
 
   .classes_list, .schedule, .teacher_list, .ticket_list{

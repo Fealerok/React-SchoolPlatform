@@ -3,6 +3,7 @@ import Image from 'next/image';
 import arrow from "../../../../../public/calendar_arrow.png";
 import 'tailwindcss/tailwind.css';
 import { ScheduleContext } from '@/app/_context/scheduleContext';
+import { AsideContext } from '@/app/_context/asideContext';
 
 const daysOfWeek: string[] = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 const months: string[] = [
@@ -21,6 +22,7 @@ const getFirstDayOfMonth = (year: number, month: number): number => {
 
 const Calendar: React.FC = () => {
   const {dates, setDates} = useContext(ScheduleContext);
+  const {asideType} = useContext(AsideContext);
   const [year, setYear] = useState<number>(new Date().getFullYear());
   const [month, setMonth] = useState<number>(new Date().getMonth());
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
@@ -86,9 +88,15 @@ const Calendar: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    setDates([]);
+    setSelectedWeek(null);
+    console.log(1231231);
+  }, [asideType]);
+
 
   return (
-    <div className="xl:w-[280px] xl:h-[280px] w-[250px] h-[250px] p-2">
+    <div className="h-[300px] p-2">
       <div className="flex justify-between mb-2">
         <button onClick={handlePrevMonth} className="text-xs">
           <Image src={arrow} alt='' className='rotate-[180deg] w-3' />

@@ -9,13 +9,15 @@ import { AsideContext } from '@/app/_context/asideContext'
 interface ILessonInformation{
     isLessonInformation: boolean,
     setIsLessonInformation: (data: boolean) => void
-    selectedLessonId: null | number
+    selectedLessonId: null | number,
+    lessonStatus: string | null | undefined
 }
 
 const LessonInformation = ({
     isLessonInformation,
     setIsLessonInformation,
-    selectedLessonId
+    selectedLessonId,
+    lessonStatus
 } : ILessonInformation) => {
 
     const [lessonInformation, setLessonInformation] = useState<{
@@ -126,6 +128,7 @@ const LessonInformation = ({
 
        
         setIsEdit(false);
+        alert("Информация об уроке обновлена.");
 
     }
 
@@ -206,14 +209,13 @@ const LessonInformation = ({
 
     useEffect(() => {
         //Если окно открыто, то получаем информацию урока по его Id
-
         if (isLessonInformation) getLessonInformation();
     }, [isLessonInformation]);
 
 
     if (lessonInformation){
         return (
-            <div className={`${isLessonInformation ? "block" : "hidden"} border-[3px] flex justify-between border-border-blocks absolute top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] right-0 bottom-0 w-[700px] h-[50%] bg-additional-bg`}>
+            <div className={`${isLessonInformation ? "block" : "hidden"} border-[3px] flex justify-between border-border-blocks absolute top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] right-0 bottom-0 w-[700px] h-[400px] bg-additional-bg`}>
                 <div className="w-1/2 flex flex-col p-[40px] gap-[20px]">
         
                     <div className="flex flex-col gap-[20px]">
@@ -286,14 +288,14 @@ const LessonInformation = ({
                     </div>
                 </div>
                 <div className="w-1/2 flex flex-col items-end justify-between p-[40px]">
-                    <div className={`${(user?.role == "Ученик" || user?.role == "Учитель" || asideType == "Главная") ? "justify-center" : ""} flex items-end h-full  flex-col gap-[20px] w-full`}>
+                    <div className={`${(user?.role == "Ученик" || user?.role == "Учитель") ? "justify-center" : ""} flex items-end h-full  flex-col gap-[20px] w-full`}>
                           <button 
                           onClick={() => onEditCickHandle()}
-                          className={`${(user?.role == "Ученик" || user?.role == "Учитель" || asideType == "Главная") ? "hidden" : "block"} w-[90%] transition-colors duration-150 hover:bg-button-bg hover:text-white border-[2px] border-border-blocks rounded-[6px] h-[40px]`}>{isEdit ? "Сохранить" : "Редактировать"}</button>
+                          className={`${(user?.role == "Ученик" || user?.role == "Учитель") ? "hidden" : "block"} w-[90%] transition-colors duration-150 hover:bg-button-bg hover:text-white border-[2px] border-border-blocks rounded-[6px] h-[40px]`}>{isEdit ? "Сохранить" : "Редактировать"}</button>
                           <button 
                           onClick={() => onDeleteLesson()}
-                          className={`${(user?.role == "Ученик" || user?.role == "Учитель" || asideType == "Главная") ? "hidden" : "block"} w-[90%] transition-colors duration-150 hover:bg-button-bg hover:text-white border-[2px] border-border-blocks rounded-[6px] h-[40px]`}>Удалить</button>
-                          <button className={`w-[90%] transition-colors duration-150 hover:bg-button-bg hover:text-white bg-button-bg border-[2px] border-border-blocks rounded-[6px] h-[40px] text-white`}>Присоединиться</button>
+                          className={`${(user?.role == "Ученик" || user?.role == "Учитель") ? "hidden" : "block"} w-[90%] transition-colors duration-150 hover:bg-button-bg hover:text-white border-[2px] border-border-blocks rounded-[6px] h-[40px]`}>Удалить</button>
+                          <button className={`w-[90%] transition-colors duration-150 hover:bg-button-bg hover:text-white bg-button-bg border-[2px] border-border-blocks rounded-[6px] h-[40px] text-white`}>{lessonStatus == "закончен" ? "Смотреть запись" : "Присоединиться"}</button>
                     </div>
                     
                     <button 

@@ -15,7 +15,7 @@ const AsideButton = ({
     <button onClick={() => {
       setAsideType(buttonText);
       setDates([]);
-    }} className=' transition-colors duration-150 border-2 border-border-blocks hover:bg-button-bg hover:text-white mr-5 ml-5 rounded-[6px] h-10 text-left pl-[15px] text-2xl'>{buttonText}</button>
+    }} className=' transition-colors duration-150 border-2 border-border-blocks hover:bg-button-bg hover:text-white mr-5 ml-5 rounded-[6px] h-10 text-left pl-[15px] text-2xl aside_button aside_element'>{buttonText}</button>
   )
 }
 

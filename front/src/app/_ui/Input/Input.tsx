@@ -6,7 +6,8 @@ interface IInput {
     setInputValue: (inputValue: string) => void, // Тип для функции, которая принимает inputValue и возвращает void,
     type: string,
     isLabel: boolean,
-    initialText?: string
+    initialText?: string,
+    isAnimation?: boolean
 }
 
 const Input = ({
@@ -14,7 +15,8 @@ const Input = ({
     setInputValue,
     type,
     isLabel,
-    initialText
+    initialText,
+    isAnimation
 }: IInput) => {
 
     const [isHasValue, setIsHasValue] = useState(false);
@@ -45,7 +47,7 @@ const Input = ({
                     value={value} // Используем внутреннее состояние для значения
                 />
     
-                {isLabel ? <label className={`transition-all duration-200  absolute top-[50%] translate-y-[-50%] pointer-events-none text-2xl pl-[10px] ${isHasValue ? 'text-[22px]' : 'text-2xl'} ${isHasValue && `!-translate-y-[60px]`}`}>{inputPlaceholder}</label> : null}
+                {isLabel ? <label className={`transition-all duration-200  absolute top-[50%] translate-y-[-50%] pointer-events-none text-2xl pl-[10px] ${isHasValue  ? 'text-[22px]' : 'text-2xl'} ${isHasValue  && `!-translate-y-[60px]`}`}>{inputPlaceholder}</label> : null}
             </div>
         )
     }
@@ -62,7 +64,7 @@ const Input = ({
                     value={value} // Используем внутреннее состояние для значения
                 />
     
-                {isLabel ? <label className={`transition-all duration-200  absolute top-[50%] translate-y-[-50%] pointer-events-none text-2xl pl-[10px] ${isHasValue ? 'text-[22px]' : 'text-2xl'} ${isHasValue && `!-translate-y-[60px]`}`}>{inputPlaceholder}</label> : null}
+                {isLabel ? <label className={`transition-all duration-200  absolute top-[50%] translate-y-[-50%] pointer-events-none text-2xl pl-[10px] ${!isAnimation ? `!-translate-y-[60px]` : ""} ${isHasValue && `!-translate-y-[60px]`}`}>{inputPlaceholder}</label> : null}
             </div>
         )
     }

@@ -16,10 +16,10 @@ const AsideContent = ({
 
     const {user, setUser} = useContext(AuthContext);
 
-    const {asideType} = useContext(AsideContext);
+    const {asideType, isOpened, setIsOpened} = useContext(AsideContext);
     const {setScheduleClassName} = useContext(ScheduleContext);
     const [classes, setClasses] = useState<Array<{id: number, name: string}>>([])
-    const [selectedClass, setSelectedClass] = useState("Выбор класса");
+    const [selectedClass, setSelectedClass] = useState("Расписание классы");
 
     const router = useRouter();
     const selectRef = useRef<HTMLSelectElement>(null);
@@ -68,6 +68,8 @@ const AsideContent = ({
     const changeScheduleClassName = () => {
         if (selectRef.current){
             const value = selectRef.current.value;
+
+            console.log(value);
             setScheduleClassName(value);
             setSelectedClass(value);
         }
@@ -76,30 +78,32 @@ const AsideContent = ({
     if (user?.role == "Администратор" || user?.role == "Техподдержка"){
         return (
             <>
-                <div className="flex flex-col w-full gap-8 mt-[45px]">
+                <div className={`aside_main_buttons flex flex-col w-full gap-8 mt-[45px] ${!isOpened && "!hidden"}`} >
                     <AsideButton buttonText='Главная'/> 
-                    <AsideButton buttonText='Расписание классы'/> 
-                    <AsideButton buttonText='Списки классы'/> 
-                    <AsideButton buttonText='Учителя'/> 
+                    
 
                     {asideType == "Главная" || asideType == "Расписание классы" ? (
                         <select
                             ref={selectRef}
                             onChange={changeScheduleClassName}
-                            className='transition-colors duration-150 border-2 border-border-blocks mr-5 ml-5 rounded-[6px] h-10 text-left pl-[15px] outline-none text-2xl'
+                            className='bg-transparent aside_element transition-colors duration-150 border-2 border-border-blocks mr-5 ml-5 rounded-[6px] h-10 text-left pl-[10px] outline-none text-2xl'
                             value={selectedClass}
                             
                         >
-                            <option disabled>Выбор класса</option>
+                            <option disabled>{selectedClass}</option>
                             {classes.map(classItem => (
                                 <option key={classItem.id} value={classItem.name}>{classItem.name}</option>
                             ))}
                         </select>
                     ) : null}
+
+                    <AsideButton buttonText='Списки классы' />
+                    <AsideButton buttonText='Учителя' /> 
+                    {user?.role == "Техподдержка" ? <AsideButton buttonText='Администраторы' /> : null}
                     
                 </div>
                     
-                <div className={`${asideType == "Расписание классы" || asideType == "Главная" ? "block" : "hidden"} xl:w-[280px] xl:h-[300px] w-[250px] h-[300px] rounded-6 border-[3px] border-border-blocks mt-auto mb-auto`}>
+                <div className={`${asideType == "Расписание классы" || asideType == "Главная" ? "block" : "hidden"} ${!isOpened && "!hidden"} w-[280px] h-[300px] rounded-6 border-[3px] border-border-blocks mt-auto mb-auto`}>
                     <Calendar />
                 </div>
             </>
@@ -109,26 +113,12 @@ const AsideContent = ({
     else if (user?.role == "Учитель"){
         return (
             <>
-                <div className="flex flex-col w-full gap-8 mt-[45px]">
+                <div className={`aside_main_buttons flex flex-col w-full gap-8 mt-[45px] ${!isOpened && "!hidden"}`}>
                     <AsideButton buttonText='Главная'/> 
 
-                    {asideType == "Главная" || asideType == "Расписание классы" ? (
-                        <select
-                            ref={selectRef}
-                            onChange={changeScheduleClassName}
-                            className='transition-colors duration-150 border-2 border-border-blocks mr-5 ml-5 rounded-[6px] h-10 text-left pl-[15px] outline-none text-2xl'
-                            value={selectedClass}
-                            
-                        >
-                            <option disabled>Выбор класса</option>
-                            {classes.map(classItem => (
-                                <option key={classItem.id} value={classItem.name}>{classItem.name}</option>
-                            ))}
-                        </select>
-                    ) : null}
                 </div>
                     
-                <div className={`${asideType == "Главная" ? "block" : "hidden"} w-[280px] h-[300px] rounded-6 border-[3px] border-border-blocks mt-auto mb-auto`}>
+                <div className={`${asideType == "Главная" ? "block" : "hidden"} ${!isOpened && "!hidden"} w-[280px] h-[300px] rounded-6 border-[3px] border-border-blocks mt-auto mb-auto`}>
                     <Calendar />
                 </div>
             </>
@@ -138,14 +128,14 @@ const AsideContent = ({
     else if (user?.role == "Ученик"){
         return (
             <>
-                <div className="flex flex-col w-full gap-8 mt-[45px]">
+                <div className={`aside_main_buttons flex flex-col w-full gap-8 mt-[45px] ${!isOpened && "!hidden"}`}>
                     <AsideButton buttonText='Главная'/> 
 
-                    {asideType == "Главная" || asideType == "Расписание классы" ? (
+                    {asideType == "Главная" ? (
                         <select
                             ref={selectRef}
                             onChange={changeScheduleClassName}
-                            className='transition-colors duration-150 border-2 border-border-blocks mr-5 ml-5 rounded-[6px] h-10 text-left pl-[15px] outline-none text-2xl'
+                            className='hidden transition-colors duration-150 border-2 border-border-blocks mr-5 ml-5 rounded-[6px] h-10 text-left pl-[15px] outline-none text-2xl'
                             value={selectedClass}
                             disabled
                             
@@ -156,7 +146,7 @@ const AsideContent = ({
                     ) : null}
                 </div>
                     
-                <div className={`${asideType == "Главная" ? "block" : "hidden"} w-[280px] h-[300px] rounded-6 border-[3px] border-border-blocks mt-auto mb-auto`}>
+                <div className={`${asideType == "Главная" ? "block" : "hidden"} ${!isOpened && "!hidden"} w-[280px] h-[300px] rounded-6 border-[3px] border-border-blocks mt-auto mb-auto`}>
                     <Calendar />
                 </div>
             </>

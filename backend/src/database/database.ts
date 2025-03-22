@@ -168,6 +168,8 @@ class Database{
             await this.db.query(`INSERT INTO "Classes"("name") VALUES ($1)`, [nameNewClass]);
         } catch (error) {
             console.log(`Ошибка добавления нового класса в БД: ${error}`);
+
+            return "Класс уже существует";
             
         }
     }
@@ -306,15 +308,15 @@ class Database{
         }
     }
 
-    addNewLesson = async (newLessonName: string, selectedTime: string, selectedDate: Date, className: string) => {
+    addNewLesson = async (newLessonName: string, selectedTime: string, selectedDate: Date, className: string, teacherId: number) => {
         try {
             const idClass = (await this.db.query(`SELECT id FROM "Classes" WHERE name=$1`, [className])).rows[0]?.id;
 
             const lesson = (await this.db.query(`SELECT * FROM "Lessons" WHERE lesson_date=$1 AND lesson_start_time=$2 AND id_class=$3`, [selectedDate, selectedTime, idClass] )).rows;
             
             if (lesson.length == 0){
-                await this.db.query(`INSERT INTO "Lessons"("name", "lesson_date", "lesson_start_time", "id_class")
-                VALUES ($1, $2, $3, $4)`, [newLessonName, selectedDate, selectedTime, idClass]);
+                await this.db.query(`INSERT INTO "Lessons"("name", "lesson_date", "lesson_start_time", "id_class", "id_teacher")
+                VALUES ($1, $2, $3, $4, $5)`, [newLessonName, selectedDate, selectedTime, idClass, teacherId]);
             }
 
         } catch (error) {
@@ -336,17 +338,29 @@ class Database{
         }
     }
 
-    getLessonsBetweenDates = async (dates: Array<string>, scheduleClassName: string) => {
+    getLessonsBetweenDates = async (dates: Array<string>, scheduleClassName: string | undefined | null, userId: number | undefined | null) => {
         try {
-            const idClass = (await this.db.query(`SELECT id FROM "Classes" WHERE name=$1`, [scheduleClassName])).rows[0]?.id;
+
+            console.log(scheduleClassName);
+            console.log(userId);
+            if (userId){
+                const lessons = (await this.db.query(`SELECT * FROM "Lessons"
+                    WHERE "lesson_date" BETWEEN $1 AND $2 AND "id_teacher"=$3`, [dates[0], dates[dates.length - 1], userId])).rows;
+
+                    console.log(lessons);
+
+                return lessons;
+            }
+            else{
+                const idClass = (await this.db.query(`SELECT id FROM "Classes" WHERE name=$1`, [scheduleClassName])).rows[0]?.id;
+                const lessons = (await this.db.query(`SELECT * FROM "Lessons"
+                    WHERE "lesson_date" BETWEEN $1 AND $2 AND "id_class" = $3`, [dates[0], dates[dates.length - 1], idClass])).rows;
 
 
+                return lessons;
+            }
 
-            const lessons = (await this.db.query(`SELECT * FROM "Lessons"
-                                                WHERE "lesson_date" BETWEEN $1 AND $2 AND "id_class" = $3`, [dates[0], dates[dates.length-1], idClass])).rows;
-
-                
-            return lessons;
+            
             
         } catch (error) {
             console.log(`Ошибка получения уроков в БД: ${error}`);
@@ -543,6 +557,73 @@ class Database{
             await this.db.query(`DELETE FROM "SupportRequests" WHERE id=$1`, [idTicket]);
         } catch (error) {
             console.log(`Ошибка удаления тикета в БД: ${error}`);
+            
+        }
+    }
+
+    addAdmin = async (surname: string, name: string, patronymic: string) => {
+        try {
+            const idRole = (await this.db.query(`SELECT id FROM "Roles" WHERE name='Администратор'`)).rows[0].id;
+
+            const fullName = `${surname} ${name} ${patronymic}`;
+            await this.db.query(`INSERT INTO "Users" ("full_name", "id_role") VALUES ($1, $2)`, [fullName, idRole]);
+        } catch (error) {
+            console.log(`Ошибка добавления Админа в БД: ${error}`);
+            
+        }
+    }
+
+    deleteAdmin = async (idAdmin: number) => {
+        try {
+            await this.db.query(`DELETE FROM "Users" WHERE id=$1`, [idAdmin]);
+        } catch (error) {
+            console.log(`Ошибка добавления админа в БД: ${error}`);
+            
+        }
+    }
+
+    updateAdmin = async (idAdmin: number, fullName: string, login: string, password: string) => {
+        try {
+            
+            const user = (await this.db.query(`SELECT * FROM "Users" WHERE id=$1`, [idAdmin])).rows[0];
+            //Если нет id_usersdata
+            if (!user.id_usersdata){
+
+                //Если логин и пароль не вписали, значит обновляем только ФИО
+                if ((login == "" || !login) && (password == "" || !password)){
+                    await this.db.query(`UPDATE "Users" SET full_name=$1 WHERE id=$2`, [fullName, idAdmin]);
+                }
+
+
+                //Если логин и пароль вписали, то создаем UsersData и связаываем его с Users
+                else if (login != "" && password != ""){
+                    const hashedPassword = await bcrypt.hash(password, salt);
+                    const idInseredUsersData =  (await this.db.query(`INSERT INTO "UsersData" ("login", "password") VALUES ($1, $2) RETURNING "id"`, [login, hashedPassword])).rows[0].id;
+
+                    await this.db.query(`UPDATE "Users" SET id_usersdata=$1 WHERE id=$2`, [idInseredUsersData, idAdmin]);
+
+                }
+            }
+
+            else {
+                const hashedPassword = await bcrypt.hash(password, salt);
+                await this.db.query(`UPDATE "UsersData" SET login=$1, password=$2 WHERE id=$3`, [login, hashedPassword, user.id_usersdata]);
+                await this.db.query(`UPDATE "Users" SET full_name=$1 WHERE id=$2`, [fullName, idAdmin]);
+            }
+        } catch (error) {
+            console.log(`Ошибка обновления админа в БД: ${error}`);
+            
+        }
+    }
+
+    getAdmins = async () => {
+        try {
+            const adminId = (await this.db.query(`SELECT id FROM "Roles" WHERE name='Администратор'`)).rows[0].id;
+            const resultWithUsersData = (await this.db.query(`SELECT "Users".id, full_name, "UsersData".login FROM "Users" LEFT JOIN "UsersData" ON "Users".id_usersdata = "UsersData".id WHERE "Users".id_role=$1`,[adminId])).rows;
+
+            return resultWithUsersData;
+        } catch (error) {
+            console.log(`Ошибка получения админов в БД: ${error}`);
             
         }
     }

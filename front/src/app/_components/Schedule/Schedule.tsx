@@ -7,10 +7,12 @@ import { fetchWithAuth } from '@/app/_utils/fetchWithAuth/fetchWithAuth';
 import { useRouter } from 'next/navigation';
 import LessonInformation from './LessonInformation/LessonInformation';
 import { AsideContext } from '@/app/_context/asideContext';
+import { AuthContext } from '@/app/_context/authContext';
 
 const Schedule = () => {
-    const {asideType} = useContext(AsideContext);
+    const {asideType, setIsOpened, isOpened} = useContext(AsideContext);
     
+    const [lessonStatusState, setLessonStatusState] = useState<string | null>();
     const [isAddNewLesson, setIsAddNewLesson] = useState(false);
     const [isLessonInformation, setIsLessonInformation] = useState(false);
 
@@ -18,6 +20,7 @@ const Schedule = () => {
     const [selectedTime, setSelectedTime] = useState<string>();
     const [selectedDateString, setSelectedDateString] = useState<string>();
     const [selectedDate, setSelectedDate] = useState<Date>();
+
     const [lessons, setLessons] = useState<Array<{
         id: number, 
         name: string,
@@ -26,7 +29,9 @@ const Schedule = () => {
         id_class: number
     }>>([]);
 
-    const {dates, scheduleClassName} = useContext(ScheduleContext);
+    const {user} = useContext(AuthContext);
+
+    const {dates, scheduleClassName, setDates} = useContext(ScheduleContext);
     const router = useRouter();
 
     const times = [
@@ -40,11 +45,17 @@ const Schedule = () => {
 
     const cellClickHandle = (event: React.MouseEvent<HTMLTableCellElement>, timeIndex: number, dayIndex: number) => {
 
-        if (asideType != "Главная"){
+        if (user?.role == "Администратор" || user?.role == "Техподдержка"){
             const tdChildren = event.currentTarget.children;
 
-            if (dates.length != 0 && tdChildren.length == 0) setIsAddNewLesson(true);
-            else return;
+
+            if (dates.length != 0 && tdChildren.length == 0 && scheduleClassName) setIsAddNewLesson(true);
+            else {
+                if (tdChildren.length == 0){
+                    alert("Для создания урока, необходимо выбрать класс и неделю в левом меню.");
+                }
+                return;
+            }
     
             setSelectedTime(times[timeIndex]);
     
@@ -59,6 +70,8 @@ const Schedule = () => {
 
     const divLessonCliCkHandle = (event: React.MouseEvent<HTMLElement>) => {
         const lessonId = Number(event.currentTarget.getAttribute("data-key"));
+        const lessonStatus = event.currentTarget.getAttribute("lesson-status");
+        setLessonStatusState(lessonStatus);
         setIsLessonInformation(true);
         setSelectedLessonId(lessonId);
         
@@ -68,29 +81,59 @@ const Schedule = () => {
         updateSchedule()
     }, [isAddNewLesson]);
 
+    useEffect(() => {
+        setDates([]);
+        setSelectedDate(undefined);
+    }, [asideType])
+
     const updateSchedule = async () => {
-
-        const response = await fetchWithAuth("/get-lessons", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                dates,
-                scheduleClassName
-            })
-        });
-
-        if (!response) router.push("/auth");
-        else{
-            setLessons(response.lessons);
+        if (user?.role == "Учитель"){
+            const userId = user?.id;
+            const response = await fetchWithAuth("/get-lessons", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    dates,
+                    userId
+                })
+            });
+    
+            if (!response) router.push("/auth");
+            else{
+                setLessons(response.lessons);
+            }
         }
+
+        else{
+            const response = await fetchWithAuth("/get-lessons", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    dates,
+                    scheduleClassName,
+                })
+            });
+    
+            if (!response) router.push("/auth");
+            else{
+                setLessons(response.lessons);
+            }
+        }
+        
 
     }
     
     useEffect(() => {
         updateSchedule();
     }, [isLessonInformation, dates, scheduleClassName ]);
+
+    useEffect(() => {
+        updateSchedule();
+    }, [isLessonInformation]);
 
     const getLessonStatus = (lessonDate: Date, lessonTime: string) => {
         const now = new Date(); // Текущее время
@@ -115,7 +158,11 @@ const Schedule = () => {
     };
 
     return (
-        <div className={`w-full h-full schedule`}>
+        <div className={`w-full h-full schedule`} onClick={() => {
+            if (window.innerWidth < 1367){
+                setIsOpened(false);
+            }
+        }}>
             <AddNewLesson 
             isAddNewLesson={isAddNewLesson}
             setIsAddNewLesson={setIsAddNewLesson}
@@ -127,9 +174,10 @@ const Schedule = () => {
             isLessonInformation={isLessonInformation}
             setIsLessonInformation={setIsLessonInformation}
             selectedLessonId={selectedLessonId}
+            lessonStatus={lessonStatusState}
              ></LessonInformation>
 
-            <table className={`${isAddNewLesson || isLessonInformation ? "pointer-events-none" : ""} w-full h-full table-fixed`}>
+            <table className={`${isAddNewLesson || isLessonInformation || (isOpened && window.innerWidth < 1367) ? "pointer-events-none" : ""} w-full h-full table-fixed`}>
                 <tbody>
                     <tr>
                         <th className='w-[100px]'></th>
@@ -169,7 +217,8 @@ const Schedule = () => {
                                                 <div className={`${lessonStatus != "закончен" ? "bg-blue-600 text-white" : "bg-blue-200"} flex items-center justify-center text-black rounded-[10px] max-w-[calc(100%-10px)] overflow-hidden h-[calc(100%-10px)] m-auto `} 
                                                 key={lesson.id}
                                                 onClick={(event) => divLessonCliCkHandle(event)}
-                                                data-key={lesson.id}>{lesson.name}</div>
+                                                data-key={lesson.id}
+                                                lesson-status={lessonStatus}>{lesson.name}</div>
                                             )
                                             
                                         })}

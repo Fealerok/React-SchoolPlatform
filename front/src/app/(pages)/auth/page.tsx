@@ -64,6 +64,7 @@ const AuthPage = () => {
         setInputValue={setLogin} 
         type="Текст" 
         isLabel={true}
+        isAnimation={false}
       />
 
       <Input 
@@ -71,6 +72,7 @@ const AuthPage = () => {
         setInputValue={(setPassword)} 
         type="Пароль" 
         isLabel={true}
+        isAnimation={false}
       />
 
       <button 

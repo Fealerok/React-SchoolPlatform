@@ -30,7 +30,11 @@ const AddClass = ({isAddClass, setIsAddClass, setNewClass} : IAddClass) => {
             })
         });
 
-        if (response.ok) setNewClass(nameClass);
+
+        if (response.ok) {
+            setNewClass(nameClass);
+        }
+        else if (!response.ok) alert(response.message);
     }
 
     const addButtonHandle = () => {
@@ -53,6 +57,7 @@ const AddClass = ({isAddClass, setIsAddClass, setNewClass} : IAddClass) => {
             setInputValue={setNameClass} 
             isLabel={false} type='Текст' />
         </div>
+
 
         <div className={` flex justify-between w-[70%] h-full small_buttons translate-y-[60%]`}>
             <button 
